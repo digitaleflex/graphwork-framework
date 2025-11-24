@@ -1,0 +1,1 @@
+{"version":3,"file":"security-auditor.d.ts","sourceRoot":"","sources":["../src/security-auditor.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,OAAO,EAAE,WAAW,EAAE,MAAM,YAAY,CAAC;AAElD,MAAM,WAAW,qBAAsB,SAAQ,WAAW;CAEzD;AAED,qBAAa,eAAgB,SAAQ,OAAO;gBAC9B,MAAM,EAAE,qBAAqB;IAInC,OAAO,CAAC,MAAM,EAAE,MAAM,EAAE,OAAO,GAAE,GAAQ,GAAG,OAAO,CAAC,MAAM,CAAC;CAkElE"}

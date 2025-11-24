@@ -1,6 +1,11 @@
 // packages/@graphwork/templates/src/index.ts
 import * as Handlebars from 'handlebars';
 
+// Register JSON stringify helper
+Handlebars.registerHelper('JSONstringify', function(context) {
+  return JSON.stringify(context);
+});
+
 export class TemplateEngine {
   private templates: Map<string, Handlebars.TemplateDelegate> = new Map();
 

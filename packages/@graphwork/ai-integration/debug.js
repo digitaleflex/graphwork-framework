@@ -1,0 +1,1 @@
+const code = 'const apiKey = \'sk-abcdefghijklmnopqrstuvwxyz12345678901234567890\';'; const pattern = /\b(api[key|secret]?\s*[=:]\s*['"][a-zA-Z0-9_\-]{30,}['"])/i; console.log('Match:', pattern.test(code));

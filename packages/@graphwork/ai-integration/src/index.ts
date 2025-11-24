@@ -1,5 +1,6 @@
 // packages/@graphwork/ai-integration/src/index.ts
 import axios from 'axios';
+import { SecurityValidator, SecurityValidationResult } from './security-validator';
 
 export interface AIConfig {
   provider: string;
@@ -18,7 +19,18 @@ export class AIIntegration {
   }
 
   async generateCode(prompt: string, context: any = {}): Promise<string> {
-    // Mock implementation - in real scenario would call actual AI provider
+    // Validate the prompt for security issues
+    const promptValidation = SecurityValidator.validatePrompt(prompt);
+    if (!promptValidation.isValid) {
+      throw new Error(`Security validation failed for prompt: ${promptValidation.issues.join(', ')}`);
+    }
+    
+    // Validate the context for security issues
+    const contextValidation = SecurityValidator.validateInput(JSON.stringify(context));
+    if (!contextValidation.isValid) {
+      throw new Error(`Security validation failed for context: ${contextValidation.issues.join(', ')}`);
+    }
+    
     console.log(`Generating code with prompt: ${prompt}`);
     console.log(`Context: ${JSON.stringify(context)}`);
     
@@ -49,6 +61,18 @@ function generatedFunction() {
     // - Security vulnerabilities
     // - Quality standards
     // - Compliance with project standards
+    
+    // Use our security validator to check the response
+    const validationResult = SecurityValidator.validateGeneratedCode(response);
+    
+    if (!validationResult.isValid) {
+      console.warn(`Security validation issues found in generated code: ${validationResult.issues.join(', ')}`);
+      // Depending on severity, we might want to reject the response
+      if (validationResult.severity === 'critical' || validationResult.severity === 'high') {
+        throw new Error(`Generated code failed security validation: ${validationResult.issues.join(', ')}`);
+      }
+    }
+    
     return true;
   }
 }

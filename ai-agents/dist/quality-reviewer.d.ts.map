@@ -1,0 +1,1 @@
+{"version":3,"file":"quality-reviewer.d.ts","sourceRoot":"","sources":["../src/quality-reviewer.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,OAAO,EAAE,WAAW,EAAE,MAAM,YAAY,CAAC;AAElD,MAAM,WAAW,qBAAsB,SAAQ,WAAW;CAEzD;AAED,qBAAa,eAAgB,SAAQ,OAAO;gBAC9B,MAAM,EAAE,qBAAqB;IAInC,OAAO,CAAC,MAAM,EAAE,MAAM,EAAE,OAAO,GAAE,GAAQ,GAAG,OAAO,CAAC,MAAM,CAAC;CA4DlE"}
