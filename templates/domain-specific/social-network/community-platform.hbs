@@ -1,0 +1,414 @@
+<!-- Social Network Community Platform Template -->
+# {{platformName}} Community Platform
+
+## Overview
+This document describes the community platform for {{platformName}}, a social networking service that connects users with shared interests and communities. The platform will support user profiles, content sharing, messaging, and community building features.
+
+## Functional Requirements
+
+### User Management
+- **User Registration**: Email, social login (Google, Facebook, Apple)
+- **Profile Management**: Personal information, profile picture, cover photo
+- **Privacy Settings**: Control over profile visibility and data sharing
+- **Account Verification**: Email and phone number verification
+- **Account Security**: Two-factor authentication, login alerts
+
+### Content Management
+- **Post Creation**: Text, images, videos, links, polls
+- **Content Editing**: Edit and delete own posts
+- **Content Moderation**: Report inappropriate content, admin moderation
+- **Content Discovery**: Explore page, trending content, personalized feed
+- **Content Sharing**: Share posts from other users
+
+### Social Features
+- **Friend/Follow System**: Connect with other users
+- **Groups/Communities**: Create and join interest-based groups
+- **Messaging**: Direct messaging, group chats
+- **Notifications**: Real-time notifications for interactions
+- **Reactions**: Like, love, laugh, sad, angry reactions
+- **Comments**: Threaded comments with replies
+
+### Media Management
+- **Photo/Video Upload**: Upload and share media content
+- **Media Processing**: Automatic resizing, format conversion
+- **Media Storage**: Cloud storage with CDN distribution
+- **Media Privacy**: Control over who can view media
+- **Albums**: Organize photos into albums
+
+### Search and Discovery
+- **User Search**: Find users by name, username, or interests
+- **Content Search**: Search posts by keywords, hashtags
+- **Group Search**: Discover groups by topic or name
+- **Trending Topics**: See what's trending on the platform
+- **Recommendations**: Personalized content and user recommendations
+
+### Analytics and Insights
+- **Profile Analytics**: View counts, engagement metrics
+- **Content Analytics**: Post performance, reach, engagement
+- **Audience Insights**: Follower demographics and behavior
+- **Business Analytics**: For business accounts and advertisers
+
+## Non-Functional Requirements
+
+### Performance
+- **Response Time**: Page load time < 2 seconds for 95% of requests
+- **Concurrent Users**: Support for 1 million+ concurrent users
+- **Media Processing**: Photo processing < 5 seconds, video processing < 30 seconds
+- **Real-time Features**: Instant messaging and notifications
+- **Scalability**: Horizontal scaling to handle growth
+
+### Security
+- **Data Encryption**: AES-256 encryption for data at rest, TLS 1.3 for data in transit
+- **Authentication**: OAuth 2.0 with multi-factor authentication options
+- **Authorization**: Role-based access control with privacy settings
+- **Content Safety**: AI-powered content moderation
+- **Privacy Compliance**: GDPR, CCPA, and other privacy regulations
+
+### Reliability
+- **Uptime**: 99.95% system availability
+- **Fault Tolerance**: Automatic failover and redundancy
+- **Backup and Recovery**: Daily backups with point-in-time recovery
+- **Disaster Recovery**: Recovery time objective (RTO) < 4 hours
+
+### Usability
+- **Intuitive Interface**: User-friendly interface with minimal learning curve
+- **Mobile First**: Responsive design optimized for mobile devices
+- **Accessibility**: WCAG 2.1 AA compliance
+- **Multi-language**: Support for {{language}} and other major languages
+- **Customization**: Customizable themes and layouts
+
+## Technical Architecture
+
+### System Components
+
+#### Frontend
+- **Web Application**: React.js with TypeScript and Redux
+- **Mobile Apps**: Native iOS (Swift) and Android (Kotlin) applications
+- **Progressive Web App**: PWA for cross-platform support
+- **Admin Dashboard**: React-based admin interface
+
+#### Backend
+- **API Gateway**: NGINX or cloud API gateway
+- **Microservices**: Node.js with TypeScript and NestJS
+- **Real-time Service**: WebSocket server for messaging and notifications
+- **Media Processing**: FFmpeg-based media processing service
+- **Search Service**: Elasticsearch for search functionality
+
+#### Database
+- **Primary Database**: PostgreSQL for relational data
+- **Document Database**: MongoDB for flexible content storage
+- **Cache Layer**: Redis for high-speed data access
+- **Search Engine**: Elasticsearch for search functionality
+- **Time-Series Database**: InfluxDB for analytics data
+
+#### Infrastructure
+- **Cloud Platform**: AWS or Google Cloud Platform
+- **Containerization**: Docker for application containerization
+- **Orchestration**: Kubernetes for container orchestration
+- **Content Delivery**: CDN for media and static assets
+- **Message Queue**: Apache Kafka for event streaming
+
+### Data Models
+
+#### User
+```json
+{
+  "id": "uuid",
+  "username": "string",
+  "email": "string",
+  "phoneNumber": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "dateOfBirth": "date",
+  "gender": "enum(male, female, non_binary, prefer_not_to_say)",
+  "bio": "string",
+  "profilePicture": "string",
+  "coverPhoto": "string",
+  "location": {
+    "city": "string",
+    "country": "string"
+  },
+  "website": "string",
+  "isVerified": "boolean",
+  "isPrivate": "boolean",
+  "createdAt": "datetime",
+  "updatedAt": "datetime",
+  "lastLoginAt": "datetime"
+}
+```
+
+#### Post
+```json
+{
+  "id": "uuid",
+  "userId": "uuid",
+  "content": "text",
+  "media": [
+    {
+      "type": "enum(image, video)",
+      "url": "string",
+      "thumbnail": "string",
+      "altText": "string"
+    }
+  ],
+  "location": {
+    "latitude": "number",
+    "longitude": "number",
+    "name": "string"
+  },
+  "hashtags": ["string"],
+  "mentions": ["uuid"],
+  "privacy": "enum(public, friends, private)",
+  "likesCount": "number",
+  "commentsCount": "number",
+  "sharesCount": "number",
+  "isEdited": "boolean",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+#### Comment
+```json
+{
+  "id": "uuid",
+  "postId": "uuid",
+  "userId": "uuid",
+  "parentId": "uuid",
+  "content": "text",
+  "mentions": ["uuid"],
+  "likesCount": "number",
+  "repliesCount": "number",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+#### Relationship
+```json
+{
+  "id": "uuid",
+  "followerId": "uuid",
+  "followedId": "uuid",
+  "status": "enum(pending, accepted, blocked)",
+  "createdAt": "datetime"
+}
+```
+
+#### Group
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "description": "text",
+  "privacy": "enum(public, private, secret)",
+  "coverPhoto": "string",
+  "membersCount": "number",
+  "admins": ["uuid"],
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+#### Message
+```json
+{
+  "id": "uuid",
+  "conversationId": "uuid",
+  "senderId": "uuid",
+  "content": "text",
+  "media": {
+    "type": "enum(image, video, document)",
+    "url": "string"
+  },
+  "isRead": "boolean",
+  "createdAt": "datetime"
+}
+```
+
+#### Notification
+```json
+{
+  "id": "uuid",
+  "userId": "uuid",
+  "type": "enum(like, comment, follow, mention, message)",
+  "actorId": "uuid",
+  "targetId": "uuid",
+  "targetType": "enum(post, comment, user, group)",
+  "isRead": "boolean",
+  "createdAt": "datetime"
+}
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+- `POST /api/auth/refresh` - Refresh authentication token
+- `POST /api/auth/forgot-password` - Forgot password request
+- `POST /api/auth/reset-password` - Reset password
+
+### User Management
+- `GET /api/users/profile` - Get current user profile
+- `GET /api/users/{id}` - Get user profile by ID
+- `PUT /api/users/profile` - Update user profile
+- `PUT /api/users/privacy` - Update privacy settings
+- `POST /api/users/avatar` - Upload profile picture
+- `POST /api/users/cover` - Upload cover photo
+
+### Content Management
+- `GET /api/posts` - Get posts feed
+- `GET /api/posts/{id}` - Get post by ID
+- `POST /api/posts` - Create new post
+- `PUT /api/posts/{id}` - Update post
+- `DELETE /api/posts/{id}` - Delete post
+- `GET /api/posts/{id}/comments` - Get post comments
+- `POST /api/posts/{id}/comments` - Add comment to post
+- `POST /api/posts/{id}/like` - Like post
+- `DELETE /api/posts/{id}/like` - Unlike post
+
+### Social Features
+- `GET /api/users/{id}/followers` - Get user followers
+- `GET /api/users/{id}/following` - Get user following
+- `POST /api/users/{id}/follow` - Follow user
+- `DELETE /api/users/{id}/follow` - Unfollow user
+- `GET /api/groups` - List groups
+- `GET /api/groups/{id}` - Get group details
+- `POST /api/groups` - Create new group
+- `POST /api/groups/{id}/join` - Join group
+- `POST /api/groups/{id}/leave` - Leave group
+
+### Messaging
+- `GET /api/conversations` - List user conversations
+- `GET /api/conversations/{id}` - Get conversation details
+- `POST /api/conversations` - Create new conversation
+- `GET /api/conversations/{id}/messages` - Get conversation messages
+- `POST /api/conversations/{id}/messages` - Send message
+- `POST /api/conversations/{id}/mark-read` - Mark conversation as read
+
+### Notifications
+- `GET /api/notifications` - Get user notifications
+- `POST /api/notifications/{id}/read` - Mark notification as read
+- `POST /api/notifications/read-all` - Mark all notifications as read
+
+### Search
+- `GET /api/search/users` - Search users
+- `GET /api/search/posts` - Search posts
+- `GET /api/search/groups` - Search groups
+- `GET /api/search/trending` - Get trending topics
+
+## Real-time Features
+
+### WebSocket Events
+```javascript
+// Connection
+socket.on('connect', () => {
+  // Authenticate user
+  socket.emit('authenticate', { token: 'user-jwt-token' });
+});
+
+// Notifications
+socket.on('notification', (data) => {
+  // Handle new notification
+  console.log('New notification:', data);
+});
+
+// Messages
+socket.on('message', (data) => {
+  // Handle new message
+  console.log('New message:', data);
+});
+
+// Presence
+socket.on('user-online', (userId) => {
+  // Handle user coming online
+  console.log('User is online:', userId);
+});
+
+socket.on('user-offline', (userId) => {
+  // Handle user going offline
+  console.log('User is offline:', userId);
+});
+```
+
+## Content Moderation
+
+### Automated Moderation
+- **AI-powered Detection**: Machine learning models for inappropriate content
+- **Keyword Filtering**: Block posts with prohibited keywords
+- **Image Recognition**: Detect inappropriate images
+- **Spam Detection**: Identify and block spam content
+
+### Manual Moderation
+- **Report System**: Users can report inappropriate content
+- **Moderator Dashboard**: Tools for content moderators
+- **Appeal Process**: Users can appeal moderation decisions
+
+## Privacy and Security
+
+### Data Protection
+- **End-to-End Encryption**: For private messages
+- **Data Minimization**: Collect only necessary user data
+- **Data Portability**: Users can export their data
+- **Right to Erasure**: Users can request data deletion
+
+### Privacy Controls
+- **Granular Privacy Settings**: Control over who sees what
+- **Activity Status**: Control over online/offline status
+- **Location Sharing**: Control over location sharing
+- **Data Download**: Users can download their data
+
+## Monetization Features
+
+### Premium Subscriptions
+- **Ad-free Experience**: Remove ads for premium users
+- **Advanced Features**: Additional features for premium users
+- **Priority Support**: Faster customer support
+- **Exclusive Content**: Access to exclusive content
+
+### Advertising
+- **Targeted Ads**: Personalized advertising based on user interests
+- **Sponsored Content**: Paid posts from businesses
+- **Ad Analytics**: Analytics for advertisers
+
+### E-commerce Integration
+- **Marketplace**: Buy and sell items within the platform
+- **Payment Integration**: Secure payment processing
+- **Reviews and Ratings**: Product reviews and ratings
+
+## Implementation Plan
+
+### Phase 1: Core Platform (Months 1-3)
+- User registration and authentication
+- Basic profile management
+- Post creation and feed
+- Friend/follow system
+
+### Phase 2: Social Features (Months 4-6)
+- Messaging system
+- Groups and communities
+- Notifications
+- Content discovery
+
+### Phase 3: Advanced Features (Months 7-9)
+- Real-time features
+- Content moderation
+- Advanced privacy controls
+- Mobile applications
+
+### Phase 4: Monetization (Months 10-12)
+- Premium subscriptions
+- Advertising platform
+- E-commerce integration
+- Analytics dashboard
+
+## Success Metrics
+- Monthly active users (MAU) > {{targetMAU}} million
+- Daily active users (DAU) > {{targetDAU}} million
+- Average session duration > 30 minutes
+- User retention rate (30-day) > 60%
+- Content engagement rate > 5%
+- 99.95% system uptime
+- Page load time < 2 seconds for 95% of requests

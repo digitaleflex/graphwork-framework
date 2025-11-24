@@ -1,0 +1,138 @@
+{
+  "name": "graphwork-cursor",
+  "displayName": "GraphWork Framework",
+  "description": "Cursor extension for GraphWork Framework - AI-powered development assistance",
+  "version": "2.0.0-rc.1",
+  "publisher": "graphmind",
+  "engines": {
+    "cursor": "^0.1.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "development",
+    "framework",
+    "typescript",
+    "assistant"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "graphwork.generateSpecification",
+        "title": "GraphWork: Generate Specification",
+        "category": "GraphWork"
+      },
+      {
+        "command": "graphwork.generateCode",
+        "title": "GraphWork: Generate Code",
+        "category": "GraphWork"
+      },
+      {
+        "command": "graphwork.reviewCode",
+        "title": "GraphWork: Review Code",
+        "category": "GraphWork"
+      },
+      {
+        "command": "graphwork.auditSecurity",
+        "title": "GraphWork: Audit Security",
+        "category": "GraphWork"
+      },
+      {
+        "command": "graphwork.generateDocumentation",
+        "title": "GraphWork: Generate Documentation",
+        "category": "GraphWork"
+      },
+      {
+        "command": "graphwork.runAllAgents",
+        "title": "GraphWork: Run All Agents",
+        "category": "GraphWork"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "graphwork.generateCode",
+          "when": "editorTextFocus",
+          "group": "graphwork@1"
+        },
+        {
+          "command": "graphwork.reviewCode",
+          "when": "editorTextFocus",
+          "group": "graphwork@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "graphwork.generateSpecification",
+          "when": "explorerResourceIsFolder",
+          "group": "graphwork@1"
+        }
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "GraphWork Configuration",
+      "properties": {
+        "graphwork.apiKey": {
+          "type": "string",
+          "default": "",
+          "description": "API key for GraphWork AI services"
+        },
+        "graphwork.model": {
+          "type": "string",
+          "default": "gpt-4",
+          "description": "AI model to use for generation"
+        },
+        "graphwork.temperature": {
+          "type": "number",
+          "default": 0.7,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Temperature setting for AI generation"
+        },
+        "graphwork.maxTokens": {
+          "type": "number",
+          "default": 2000,
+          "minimum": 1,
+          "maximum": 4000,
+          "description": "Maximum tokens for AI generation"
+        },
+        "graphwork.enableSecurityValidation": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable security validation for generated code"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "cursor:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/cursor": "^0.1.0",
+    "@types/glob": "^8.0.0",
+    "@types/mocha": "^10.0.0",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.42.0",
+    "@typescript-eslint/parser": "^5.42.0",
+    "eslint": "^8.26.0",
+    "glob": "^8.0.3",
+    "mocha": "^10.1.0",
+    "typescript": "^4.8.4",
+    "@cursor/test-electron": "^2.2.0"
+  },
+  "dependencies": {
+    "axios": "^0.27.0"
+  }
+}

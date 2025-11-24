@@ -1,0 +1,402 @@
+<!-- Backend REST API Template -->
+# {{projectName}} REST API Specification
+
+## Overview
+This document describes the REST API for {{projectName}}. The API follows RESTful principles and provides endpoints for managing {{resourceName}} resources.
+
+## API Standards
+
+### HTTP Methods
+- `GET` - Retrieve resources
+- `POST` - Create new resources
+- `PUT` - Update existing resources
+- `DELETE` - Remove resources
+- `PATCH` - Partially update resources
+
+### HTTP Status Codes
+- `200 OK` - Successful GET, PUT, PATCH requests
+- `201 Created` - Successful POST requests
+- `204 No Content` - Successful DELETE requests
+- `400 Bad Request` - Invalid request data
+- `401 Unauthorized` - Authentication required
+- `403 Forbidden` - Insufficient permissions
+- `404 Not Found` - Resource not found
+- `409 Conflict` - Resource conflict
+- `422 Unprocessable Entity` - Validation errors
+- `500 Internal Server Error` - Server errors
+
+### Authentication
+All API requests require authentication using JWT Bearer tokens in the Authorization header:
+```
+Authorization: Bearer <token>
+```
+
+### Request/Response Format
+- **Content-Type**: `application/json`
+- **Character Encoding**: UTF-8
+- **Date Format**: ISO 8601 (YYYY-MM-DDTHH:mm:ssZ)
+
+## {{resourceName}} Resource
+
+### Data Model
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "description": "string",
+  "status": "enum(active, inactive, pending)",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+### Endpoints
+
+#### List {{resourceName}}s
+```
+GET /api/{{resourcePlural}}
+```
+
+**Query Parameters:**
+- `page` (integer, default: 1) - Page number
+- `limit` (integer, default: 10, max: 100) - Items per page
+- `sort` (string) - Sort field (e.g., "name", "-createdAt")
+- `filter` (string) - Filter criteria (e.g., "status:active")
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": "uuid",
+      "name": "string",
+      "description": "string",
+      "status": "string",
+      "createdAt": "datetime",
+      "updatedAt": "datetime"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 100,
+    "pages": 10
+  }
+}
+```
+
+#### Get {{resourceName}} by ID
+```
+GET /api/{{resourcePlural}}/{id}
+```
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "description": "string",
+  "status": "string",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+#### Create {{resourceName}}
+```
+POST /api/{{resourcePlural}}
+```
+
+**Request Body:**
+```json
+{
+  "name": "string",
+  "description": "string",
+  "status": "string"
+}
+```
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "description": "string",
+  "status": "string",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+#### Update {{resourceName}}
+```
+PUT /api/{{resourcePlural}}/{id}
+```
+
+**Request Body:**
+```json
+{
+  "name": "string",
+  "description": "string",
+  "status": "string"
+}
+```
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "description": "string",
+  "status": "string",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+#### Partially Update {{resourceName}}
+```
+PATCH /api/{{resourcePlural}}/{id}
+```
+
+**Request Body:**
+```json
+{
+  "name": "string"
+}
+```
+
+**Response:**
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "description": "string",
+  "status": "string",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+#### Delete {{resourceName}}
+```
+DELETE /api/{{resourcePlural}}/{id}
+```
+
+**Response:**
+```
+HTTP/1.1 204 No Content
+```
+
+### Validation Rules
+- `name` (required, string, 1-255 characters)
+- `description` (optional, string, max 1000 characters)
+- `status` (required, enum: active, inactive, pending)
+
+### Error Responses
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Validation failed",
+    "details": [
+      {
+        "field": "name",
+        "message": "Name is required"
+      }
+    ]
+  }
+}
+```
+
+## Rate Limiting
+- 1000 requests per hour per IP address
+- 100 requests per minute per authenticated user
+- Exceeding limits returns 429 Too Many Requests
+
+## Versioning
+API version is specified in the URL path:
+```
+/v1/api/{{resourcePlural}}
+```
+
+## Security Considerations
+- All requests over HTTPS
+- Input validation and sanitization
+- Protection against SQL injection, XSS, CSRF
+- Secure headers (CORS, Content Security Policy)
+- Regular security audits
+
+## Implementation Guidelines
+
+### Framework
+- Use Express.js or NestJS with TypeScript
+- Implement middleware for authentication, logging, error handling
+- Use environment variables for configuration
+- Implement proper logging with Winston or similar
+
+### Database
+- Use PostgreSQL or MongoDB based on data structure needs
+- Implement database migrations
+- Use connection pooling
+- Implement proper indexing for performance
+
+### Testing
+- Unit tests for all business logic
+- Integration tests for API endpoints
+- End-to-end tests for critical user flows
+- Load testing for performance validation
+
+### Deployment
+- Containerize with Docker
+- Use Kubernetes for orchestration
+- Implement CI/CD pipeline
+- Monitor with Prometheus/Grafana
+- Use centralized logging (ELK stack)
+
+## Example Implementation
+
+### Controller
+```typescript
+import { Request, Response } from 'express';
+import { {{resourceName}}Service } from '../services/{{resourceName}}Service';
+
+export class {{resourceName}}Controller {
+  private {{resourceName}}Service: {{resourceName}}Service;
+
+  constructor() {
+    this.{{resourceName}}Service = new {{resourceName}}Service();
+  }
+
+  async getAll(req: Request, res: Response) {
+    try {
+      const { page, limit, sort, filter } = req.query;
+      const result = await this.{{resourceName}}Service.findAll({
+        page: parseInt(page as string) || 1,
+        limit: parseInt(limit as string) || 10,
+        sort: sort as string,
+        filter: filter as string
+      });
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async getById(req: Request, res: Response) {
+    try {
+      const {{resourceName}} = await this.{{resourceName}}Service.findById(req.params.id);
+      if (!{{resourceName}}) {
+        return res.status(404).json({ error: '{{resourceName}} not found' });
+      }
+      res.json({{resourceName}});
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async create(req: Request, res: Response) {
+    try {
+      const {{resourceName}} = await this.{{resourceName}}Service.create(req.body);
+      res.status(201).json({{resourceName}});
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        return res.status(422).json({ error: 'Validation error', details: error.details });
+      }
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async update(req: Request, res: Response) {
+    try {
+      const {{resourceName}} = await this.{{resourceName}}Service.update(req.params.id, req.body);
+      if (!{{resourceName}}) {
+        return res.status(404).json({ error: '{{resourceName}} not found' });
+      }
+      res.json({{resourceName}});
+    } catch (error) {
+      if (error.name === 'ValidationError') {
+        return res.status(422).json({ error: 'Validation error', details: error.details });
+      }
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async delete(req: Request, res: Response) {
+    try {
+      const deleted = await this.{{resourceName}}Service.delete(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: '{{resourceName}} not found' });
+      }
+      res.status(204).send();
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+}
+```
+
+### Service
+```typescript
+import { {{resourceName}}Repository } from '../repositories/{{resourceName}}Repository';
+import { ValidationError } from '../errors/ValidationError';
+
+export class {{resourceName}}Service {
+  private {{resourceName}}Repository: {{resourceName}}Repository;
+
+  constructor() {
+    this.{{resourceName}}Repository = new {{resourceName}}Repository();
+  }
+
+  async findAll(options: any) {
+    return await this.{{resourceName}}Repository.findAll(options);
+  }
+
+  async findById(id: string) {
+    return await this.{{resourceName}}Repository.findById(id);
+  }
+
+  async create(data: any) {
+    this.validate(data);
+    return await this.{{resourceName}}Repository.create(data);
+  }
+
+  async update(id: string, data: any) {
+    this.validate(data);
+    return await this.{{resourceName}}Repository.update(id, data);
+  }
+
+  async delete(id: string) {
+    return await this.{{resourceName}}Repository.delete(id);
+  }
+
+  private validate(data: any) {
+    const errors = [];
+
+    if (!data.name) {
+      errors.push({ field: 'name', message: 'Name is required' });
+    } else if (data.name.length > 255) {
+      errors.push({ field: 'name', message: 'Name must be less than 255 characters' });
+    }
+
+    if (data.description && data.description.length > 1000) {
+      errors.push({ field: 'description', message: 'Description must be less than 1000 characters' });
+    }
+
+    if (data.status && !['active', 'inactive', 'pending'].includes(data.status)) {
+      errors.push({ field: 'status', message: 'Status must be active, inactive, or pending' });
+    }
+
+    if (errors.length > 0) {
+      throw new ValidationError('Validation failed', errors);
+    }
+  }
+}
+```
+
+## Success Criteria
+- API responds within 200ms for 95% of requests
+- 99.9% uptime
+- All endpoints properly documented
+- Comprehensive test coverage (80%+)
+- Security audit passed

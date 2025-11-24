@@ -1,0 +1,504 @@
+<!-- Frontend React Application Template -->
+# {{appName}} React Application
+
+## Overview
+This document describes the architecture and implementation plan for the {{appName}} React application. The application will be built using modern React patterns with TypeScript, following best practices for performance, accessibility, and maintainability.
+
+## Technical Stack
+- **Core**: React 18 with Hooks
+- **Language**: TypeScript
+- **State Management**: Redux Toolkit or Zustand
+- **Routing**: React Router v6
+- **Styling**: Styled Components or Tailwind CSS
+- **Testing**: Jest and React Testing Library
+- **Build Tool**: Vite or Create React App
+- **Linting**: ESLint with Prettier
+- **Component Library**: Material-UI or Ant Design
+
+## Project Structure
+```
+src/
+├── assets/                 # Static assets (images, fonts, etc.)
+├── components/             # Reusable UI components
+│   ├── common/             # Generic components (Button, Input, etc.)
+│   └── specific/           # Feature-specific components
+├── features/               # Feature-based modules
+│   ├── auth/               # Authentication feature
+│   ├── {{featureName}}/    # {{featureName}} feature
+│   └── shared/             # Shared feature logic
+├── hooks/                  # Custom React hooks
+├── layouts/                # Page layouts
+├── pages/                  # Page components
+├── routes/                 # Route definitions
+├── services/               # API service integrations
+├── store/                  # Redux store configuration
+├── styles/                 # Global styles and themes
+├── types/                  # TypeScript type definitions
+├── utils/                  # Utility functions
+└── App.tsx                 # Main application component
+```
+
+## Component Architecture
+
+### Component Types
+1. **Presentational Components**: Pure UI components with no business logic
+2. **Container Components**: Components that connect to state and handle logic
+3. **Compound Components**: Components that work together (e.g., Accordion, Tabs)
+4. **Higher-Order Components**: Components that enhance other components
+
+### Component Structure
+```tsx
+// ComponentName.tsx
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+
+// Types
+interface ComponentNameProps {
+  title: string;
+  isLoading?: boolean;
+  onAction?: () => void;
+}
+
+// Styled Components
+const Container = styled.div`
+  padding: 1rem;
+`;
+
+const Title = styled.h2`
+  color: #333;
+  margin-bottom: 1rem;
+`;
+
+// Component
+export const ComponentName: React.FC<ComponentNameProps> = ({
+  title,
+  isLoading = false,
+  onAction
+}) => {
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    // Fetch data or perform side effects
+  }, []);
+
+  const handleClick = () => {
+    if (onAction) {
+      onAction();
+    }
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <Container>
+      <Title>{title}</Title>
+      {/* Component content */}
+      <button onClick={handleClick}>Action</button>
+    </Container>
+  );
+};
+```
+
+## State Management
+
+### Redux Store Structure
+```typescript
+// store/rootReducer.ts
+import { combineReducers } from '@reduxjs/toolkit';
+import authReducer from '../features/auth/authSlice';
+import {{featureName}}Reducer from '../features/{{featureName}}/{{featureName}}Slice';
+
+const rootReducer = combineReducers({
+  auth: authReducer,
+  {{featureName}}: {{featureName}}Reducer,
+  // Add other reducers
+});
+
+export type RootState = ReturnType<typeof rootReducer>;
+export default rootReducer;
+```
+
+### Feature Slice Example
+```typescript
+// features/{{featureName}}/{{featureName}}Slice.ts
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { {{featureName}}Api } from '../../services/{{featureName}}Api';
+
+// Async thunks
+export const fetch{{featureName}} = createAsyncThunk(
+  '{{featureName}}/fetch',
+  async (id: string) => {
+    const response = await {{featureName}}Api.getById(id);
+    return response.data;
+  }
+);
+
+// Slice
+const {{featureName}}Slice = createSlice({
+  name: '{{featureName}}',
+  initialState: {
+    data: null,
+    loading: false,
+    error: null,
+  },
+  reducers: {
+    clear{{featureName}}: (state) => {
+      state.data = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetch{{featureName}}.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetch{{featureName}}.fulfilled, (state, action) => {
+        state.loading = false;
+        state.data = action.payload;
+      })
+      .addCase(fetch{{featureName}}.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      });
+  },
+});
+
+export const { clear{{featureName}} } = {{featureName}}Slice.actions;
+export default {{featureName}}Slice.reducer;
+```
+
+## Routing
+
+### Route Configuration
+```typescript
+// routes/AppRoutes.tsx
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from '../features/auth/hooks/useAuth';
+
+// Pages
+import HomePage from '../pages/HomePage';
+import {{featureName}}Page from '../pages/{{featureName}}Page';
+import LoginPage from '../pages/LoginPage';
+import ProtectedRoute from '../components/common/ProtectedRoute';
+
+export const AppRoutes: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route 
+        path="/{{featurePath}}" 
+        element={
+          <ProtectedRoute isAuthenticated={isAuthenticated}>
+            <{{featureName}}Page />
+          </ProtectedRoute>
+        } 
+      />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+```
+
+## API Integration
+
+### Service Layer
+```typescript
+// services/apiClient.ts
+import axios from 'axios';
+
+const apiClient = axios.create({
+  baseURL: process.env.REACT_APP_API_BASE_URL,
+  timeout: 10000,
+});
+
+// Request interceptor
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Handle unauthorized access
+      localStorage.removeItem('authToken');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient;
+```
+
+### Feature API Service
+```typescript
+// services/{{featureName}}Api.ts
+import apiClient from './apiClient';
+
+export const {{featureName}}Api = {
+  getAll: (params?: any) => 
+    apiClient.get('/{{featurePath}}', { params }),
+  
+  getById: (id: string) => 
+    apiClient.get(`/{{featurePath}}/${id}`),
+  
+  create: (data: any) => 
+    apiClient.post('/{{featurePath}}', data),
+  
+  update: (id: string, data: any) => 
+    apiClient.put(`/{{featurePath}}/${id}`, data),
+  
+  delete: (id: string) => 
+    apiClient.delete(`/{{featurePath}}/${id}`),
+};
+```
+
+## Testing Strategy
+
+### Unit Testing Components
+```tsx
+// components/ComponentName.test.tsx
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ComponentName } from './ComponentName';
+
+describe('ComponentName', () => {
+  it('renders title correctly', () => {
+    render(<ComponentName title="Test Title" />);
+    expect(screen.getByText('Test Title')).toBeInTheDocument();
+  });
+
+  it('calls onAction when button is clicked', () => {
+    const mockAction = jest.fn();
+    render(<ComponentName title="Test" onAction={mockAction} />);
+    fireEvent.click(screen.getByText('Action'));
+    expect(mockAction).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows loading state', () => {
+    render(<ComponentName title="Test" isLoading={true} />);
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
+  });
+});
+```
+
+### Testing Redux Slices
+```typescript
+// features/{{featureName}}/{{featureName}}Slice.test.ts
+import {{featureName}}Reducer, { 
+  fetch{{featureName}}, 
+  clear{{featureName}} 
+} from './{{featureName}}Slice';
+
+describe('{{featureName}}Slice', () => {
+  const initialState = {
+    data: null,
+    loading: false,
+    error: null,
+  };
+
+  it('should handle clear{{featureName}}', () => {
+    const actual = {{featureName}}Reducer(
+      { ...initialState, data: { id: '1', name: 'Test' } },
+      clear{{featureName}}()
+    );
+    expect(actual.data).toBeNull();
+  });
+
+  it('should handle fetch{{featureName}} pending', () => {
+    const action = { type: fetch{{featureName}}.pending.type };
+    const state = {{featureName}}Reducer(initialState, action);
+    expect(state.loading).toBe(true);
+  });
+});
+```
+
+## Styling Approach
+
+### Theme Configuration
+```typescript
+// styles/theme.ts
+export const theme = {
+  colors: {
+    primary: '#007bff',
+    secondary: '#6c757d',
+    success: '#28a745',
+    danger: '#dc3545',
+    warning: '#ffc107',
+    info: '#17a2b8',
+    light: '#f8f9fa',
+    dark: '#343a40',
+  },
+  spacing: {
+    xs: '0.25rem',
+    sm: '0.5rem',
+    md: '1rem',
+    lg: '1.5rem',
+    xl: '3rem',
+  },
+  breakpoints: {
+    sm: '576px',
+    md: '768px',
+    lg: '992px',
+    xl: '1200px',
+  },
+};
+
+export type Theme = typeof theme;
+```
+
+### Responsive Design
+```tsx
+// hooks/useBreakpoint.ts
+import { useState, useEffect } from 'react';
+
+export const useBreakpoint = () => {
+  const [breakpoint, setBreakpoint] = useState<'sm' | 'md' | 'lg' | 'xl'>('md');
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      if (width < 576) setBreakpoint('sm');
+      else if (width < 768) setBreakpoint('md');
+      else if (width < 992) setBreakpoint('lg');
+      else setBreakpoint('xl');
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return breakpoint;
+};
+```
+
+## Performance Optimization
+
+### Code Splitting
+```tsx
+// routes/LazyLoadedComponent.tsx
+import React, { lazy, Suspense } from 'react';
+
+const LazyComponent = lazy(() => import('../components/HeavyComponent'));
+
+export const LazyLoadedComponent: React.FC = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <LazyComponent />
+  </Suspense>
+);
+```
+
+### Memoization
+```tsx
+// hooks/useMemoizedValue.ts
+import { useMemo } from 'react';
+
+export const useMemoizedValue = <T,>(value: T, deps: React.DependencyList): T => 
+  useMemo(() => value, deps);
+```
+
+## Accessibility
+
+### Semantic HTML
+```tsx
+// components/AccessibleForm.tsx
+import React from 'react';
+
+export const AccessibleForm: React.FC = () => (
+  <form aria-labelledby="form-title">
+    <h2 id="form-title">Contact Form</h2>
+    
+    <label htmlFor="name">Name</label>
+    <input 
+      type="text" 
+      id="name" 
+      name="name" 
+      required 
+      aria-describedby="name-error"
+    />
+    <span id="name-error" role="alert"></span>
+    
+    <button type="submit">Submit</button>
+  </form>
+);
+```
+
+## Internationalization
+
+### i18n Setup
+```typescript
+// i18n/config.ts
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+i18n
+  .use(initReactI18next)
+  .init({
+    resources: {
+      en: {
+        translation: {
+          "welcome": "Welcome",
+          "logout": "Logout"
+        }
+      },
+      fr: {
+        translation: {
+          "welcome": "Bienvenue",
+          "logout": "Déconnexion"
+        }
+      }
+    },
+    lng: "en",
+    fallbackLng: "en",
+    interpolation: {
+      escapeValue: false
+    }
+  });
+
+export default i18n;
+```
+
+## Deployment
+
+### Environment Configuration
+```bash
+# .env.production
+REACT_APP_API_BASE_URL=https://api.{{appName}}.com
+REACT_APP_ENV=production
+```
+
+### Build and Deploy Script
+```bash
+#!/bin/bash
+# deploy.sh
+
+echo "Building application..."
+npm run build
+
+echo "Deploying to production..."
+# Deployment commands here
+```
+
+## Success Metrics
+- First Contentful Paint (FCP) < 1.8 seconds
+- Largest Contentful Paint (LCP) < 2.5 seconds
+- Cumulative Layout Shift (CLS) < 0.1
+- Overall bundle size < 200KB gzipped
+- Test coverage > 80%
+- Accessibility score > 95 (Lighthouse)

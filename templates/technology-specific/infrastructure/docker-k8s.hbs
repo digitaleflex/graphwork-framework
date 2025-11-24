@@ -1,0 +1,890 @@
+<!-- Infrastructure Docker & Kubernetes Template -->
+# {{projectName}} Infrastructure Setup
+
+## Overview
+This document describes the infrastructure setup for {{projectName}} using Docker and Kubernetes. The infrastructure is designed for scalability, high availability, and ease of deployment.
+
+## Docker Configuration
+
+### Dockerfile for Application
+```dockerfile
+# Dockerfile
+FROM node:18-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy application code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Production stage
+FROM node:18-alpine AS production
+
+# Create app directory
+WORKDIR /app
+
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+# Copy package files
+COPY package*.json ./
+
+# Install production dependencies only
+RUN npm ci --only=production
+
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# Change ownership of app files
+RUN chown -R nextjs:nodejs /app
+USER nextjs
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
+# Start the application
+CMD ["npm", "start"]
+```
+
+### Multi-stage Dockerfile for Services
+```dockerfile
+# services/{{serviceName}}/Dockerfile
+FROM node:18-alpine AS builder
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build the service
+RUN npm run build
+
+# Production stage
+FROM node:18-alpine AS production
+
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+# Create app directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install production dependencies only
+RUN npm ci --only=production
+
+# Copy built service from builder stage
+COPY --from=builder /app/dist ./dist
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+
+# Change ownership of app files
+RUN chown -R nodejs:nodejs /app
+USER nodejs
+
+# Expose port
+EXPOSE {{servicePort}}
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:{{servicePort}}/health || exit 1
+
+# Start the service
+CMD ["node", "dist/index.js"]
+```
+
+### Docker Compose for Development
+```yaml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: {{projectName}}-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: {{databaseName}}
+      POSTGRES_USER: {{databaseUser}}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U {{databaseUser}} -d {{databaseName}}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching
+  redis:
+    image: redis:7-alpine
+    container_name: {{projectName}}-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Main application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: {{projectName}}-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://{{databaseUser}}:${POSTGRES_PASSWORD}@postgres:5432/{{databaseName}}
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+
+  # API Gateway
+  nginx:
+    image: nginx:alpine
+    container_name: {{projectName}}-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus:v2.40.0
+    container_name: {{projectName}}-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  grafana:
+    image: grafana/grafana-enterprise
+    container_name: {{projectName}}-grafana
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+```
+
+## Kubernetes Configuration
+
+### Namespace
+```yaml
+# k8s/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{projectName}}
+  labels:
+    name: {{projectName}}
+```
+
+### ConfigMap
+```yaml
+# k8s/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{projectName}}-config
+  namespace: {{projectName}}
+data:
+  NODE_ENV: "production"
+  DATABASE_HOST: "{{projectName}}-postgres.{{projectName}}.svc.cluster.local"
+  REDIS_HOST: "{{projectName}}-redis.{{projectName}}.svc.cluster.local"
+  PORT: "{{servicePort}}"
+```
+
+### Secrets
+```yaml
+# k8s/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{projectName}}-secrets
+  namespace: {{projectName}}
+type: Opaque
+data:
+  # Values should be base64 encoded
+  DATABASE_PASSWORD: {{databasePassword | b64encode}}
+  JWT_SECRET: {{jwtSecret | b64encode}}
+  REDIS_PASSWORD: {{redisPassword | b64encode}}
+```
+
+### Deployment
+```yaml
+# k8s/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{projectName}}-app
+  namespace: {{projectName}}
+  labels:
+    app: {{projectName}}-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: {{projectName}}-app
+  template:
+    metadata:
+      labels:
+        app: {{projectName}}-app
+    spec:
+      containers:
+      - name: {{projectName}}-app
+        image: {{dockerRegistry}}/{{projectName}}:{{imageTag}}
+        ports:
+        - containerPort: {{servicePort}}
+        envFrom:
+        - configMapRef:
+            name: {{projectName}}-config
+        - secretRef:
+            name: {{projectName}}-secrets
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://{{databaseUser}}:$(DATABASE_PASSWORD)@$(DATABASE_HOST):5432/{{databaseName}}"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{servicePort}}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: {{servicePort}}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1001
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+```
+
+### Service
+```yaml
+# k8s/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{projectName}}-app-service
+  namespace: {{projectName}}
+spec:
+  selector:
+    app: {{projectName}}-app
+  ports:
+    - protocol: TCP
+      port: {{servicePort}}
+      targetPort: {{servicePort}}
+  type: ClusterIP
+```
+
+### Ingress
+```yaml
+# k8s/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{projectName}}-ingress
+  namespace: {{projectName}}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - {{domainName}}
+    secretName: {{projectName}}-tls
+  rules:
+  - host: {{domainName}}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{projectName}}-app-service
+            port:
+              number: {{servicePort}}
+```
+
+### Horizontal Pod Autoscaler
+```yaml
+# k8s/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{projectName}}-hpa
+  namespace: {{projectName}}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{projectName}}-app
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+```
+
+### Database StatefulSet
+```yaml
+# k8s/postgres-statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{projectName}}-postgres
+  namespace: {{projectName}}
+spec:
+  serviceName: {{projectName}}-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{projectName}}-postgres
+  template:
+    metadata:
+      labels:
+        app: {{projectName}}-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: "{{databaseName}}"
+        - name: POSTGRES_USER
+          value: "{{databaseUser}}"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{projectName}}-secrets
+              key: DATABASE_PASSWORD
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - {{databaseUser}}
+            - -d
+            - {{databaseName}}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - {{databaseUser}}
+            - -d
+            - {{databaseName}}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 20Gi
+```
+
+### Redis Deployment
+```yaml
+# k8s/redis-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{projectName}}-redis
+  namespace: {{projectName}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{projectName}}-redis
+  template:
+    metadata:
+      labels:
+        app: {{projectName}}-redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        volumeMounts:
+        - name: redis-storage
+          mountPath: /data
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - ping
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: redis-storage
+        emptyDir: {}
+```
+
+## Helm Chart Structure
+```
+{{projectName}}-chart/
+├── Chart.yaml
+├── values.yaml
+├── templates/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   ├── ingress.yaml
+│   ├── configmap.yaml
+│   ├── secrets.yaml
+│   ├── hpa.yaml
+│   ├── postgres-statefulset.yaml
+│   ├── redis-deployment.yaml
+│   └── _helpers.tpl
+└── README.md
+```
+
+### Helm Chart Definition
+```yaml
+# {{projectName}}-chart/Chart.yaml
+apiVersion: v2
+name: {{projectName}}-chart
+description: A Helm chart for {{projectName}}
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+```
+
+### Helm Values
+```yaml
+# {{projectName}}-chart/values.yaml
+replicaCount: 3
+
+image:
+  repository: {{dockerRegistry}}/{{projectName}}
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: {{servicePort}}
+
+ingress:
+  enabled: true
+  className: "nginx"
+  hosts:
+    - host: {{domainName}}
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: {{projectName}}-tls
+      hosts:
+        - {{domainName}}
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+database:
+  name: {{databaseName}}
+  user: {{databaseUser}}
+  password: {{databasePassword}}
+
+redis:
+  enabled: true
+
+env:
+  NODE_ENV: production
+```
+
+## CI/CD Pipeline
+
+### GitHub Actions Workflow
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: npm run test:coverage
+    
+    - name: Build application
+      run: npm run build
+    
+    - name: Build Docker image
+      run: |
+        docker build -t {{dockerRegistry}}/{{projectName}}:${{ github.sha }} .
+    
+    - name: Login to Docker Registry
+      run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login {{dockerRegistry}} -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+    
+    - name: Push Docker image
+      run: docker push {{dockerRegistry}}/{{projectName}}:${{ github.sha }}
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+    
+    - name: Set up kubeconfig
+      run: |
+        mkdir -p ~/.kube
+        echo "${{ secrets.KUBECONFIG }}" | base64 -d > ~/.kube/config
+    
+    - name: Deploy to Kubernetes
+      run: |
+        # Update image tag in deployment
+        kubectl set image deployment/{{projectName}}-app {{projectName}}-app={{dockerRegistry}}/{{projectName}}:${{ github.sha }} -n {{projectName}}
+        
+        # Wait for rollout to complete
+        kubectl rollout status deployment/{{projectName}}-app -n {{projectName}}
+    
+    - name: Notify on success
+      if: success()
+      run: echo "Deployment successful"
+```
+
+## Monitoring and Logging
+
+### Prometheus Configuration
+```yaml
+# prometheus.yml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: '{{projectName}}-app'
+    kubernetes_sd_configs:
+    - role: pod
+    relabel_configs:
+    - source_labels: [__meta_kubernetes_pod_label_app]
+      action: keep
+      regex: {{projectName}}-app
+    - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+      action: replace
+      regex: ([^:]+)(?::\d+)?;(\d+)
+      replacement: $1:$2
+      target_label: __address__
+```
+
+### Grafana Dashboard
+```json
+{
+  "dashboard": {
+    "id": null,
+    "title": "{{projectName}} Dashboard",
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "25s",
+    "panels": [
+      {
+        "id": 1,
+        "type": "graph",
+        "title": "CPU Usage",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{container=\"{{projectName}}-app\"}[5m])",
+            "legendFormat": "CPU Usage"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "type": "graph",
+        "title": "Memory Usage",
+        "datasource": "Prometheus",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{container=\"{{projectName}}-app\"}",
+            "legendFormat": "Memory Usage"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+## Security Best Practices
+
+### Network Policies
+```yaml
+# k8s/network-policy.yaml
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{projectName}}-network-policy
+  namespace: {{projectName}}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{projectName}}-app
+  policyTypes:
+  - Ingress
+  - Egress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    ports:
+    - protocol: TCP
+      port: {{servicePort}}
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          app: {{projectName}}-postgres
+    ports:
+    - protocol: TCP
+      port: 5432
+  - to:
+    - podSelector:
+        matchLabels:
+          app: {{projectName}}-redis
+    ports:
+    - protocol: TCP
+      port: 6379
+```
+
+### Pod Security Policies
+```yaml
+# k8s/pod-security-policy.yaml
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: {{projectName}}-psp
+spec:
+  privileged: false
+  allowPrivilegeEscalation: false
+  requiredDropCapabilities:
+    - ALL
+  volumes:
+    - 'configMap'
+    - 'emptyDir'
+    - 'projected'
+    - 'secret'
+    - 'downwardAPI'
+    - 'persistentVolumeClaim'
+  hostNetwork: false
+  hostIPC: false
+  hostPID: false
+  runAsUser:
+    rule: 'MustRunAsNonRoot'
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  fsGroup:
+    rule: 'MustRunAs'
+    ranges:
+      - min: 1
+        max: 65535
+  readOnlyRootFilesystem: true
+```
+
+## Backup and Disaster Recovery
+
+### Backup Script
+```bash
+#!/bin/bash
+# backup-k8s.sh
+
+NAMESPACE="{{projectName}}"
+BACKUP_DIR="/backups"
+DATE=$(date +"%Y%m%d_%H%M%S")
+
+# Backup Kubernetes resources
+kubectl get -n $NAMESPACE all,configmaps,secrets,pv,pvc,ingress -o yaml > $BACKUP_DIR/${NAMESPACE}_resources_$DATE.yaml
+
+# Backup PostgreSQL database
+kubectl exec -n $NAMESPACE deploy/{{projectName}}-postgres -- pg_dump -U {{databaseUser}} {{databaseName}} > $BACKUP_DIR/${NAMESPACE}_database_$DATE.sql
+
+# Compress backups
+tar -czf $BACKUP_DIR/${NAMESPACE}_backup_$DATE.tar.gz $BACKUP_DIR/${NAMESPACE}_*
+
+# Upload to cloud storage
+# gsutil cp $BACKUP_DIR/${NAMESPACE}_backup_$DATE.tar.gz gs://{{projectName}}-backups/
+
+echo "Backup completed: ${NAMESPACE}_backup_$DATE.tar.gz"
+```
+
+## Success Metrics
+- Application deployment time < 5 minutes
+- 99.9% uptime
+- Auto-scaling responds within 30 seconds to load increases
+- Backup and recovery procedures tested monthly
+- Security scans pass with no critical vulnerabilities
+- Monitoring alerts configured for all critical metrics
+- Disaster recovery time objective (RTO) < 4 hours
+- Disaster recovery point objective (RPO) < 1 hour

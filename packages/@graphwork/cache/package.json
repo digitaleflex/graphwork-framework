@@ -1,0 +1,26 @@
+{
+  "name": "@graphwork/cache",
+  "version": "2.0.0-rc.1",
+  "description": "Cache management for GraphWork Framework 2.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "typescript": "^4.8.0",
+    "lru-cache": "^7.14.0"
+  },
+  "keywords": [
+    "cache",
+    "lru",
+    "performance",
+    "graphwork"
+  ],
+  "author": "GraphMind Organization",
+  "license": "MIT"
+}

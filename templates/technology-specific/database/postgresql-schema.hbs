@@ -1,0 +1,438 @@
+<!-- PostgreSQL Database Schema Template -->
+# {{databaseName}} Database Schema
+
+## Overview
+This document describes the PostgreSQL database schema for {{projectName}}. The schema is designed for scalability, performance, and data integrity.
+
+## Database Design Principles
+- Use UUIDs as primary keys for distributed systems
+- Normalize data to reduce redundancy
+- Use appropriate data types for optimal storage
+- Implement proper indexing for query performance
+- Apply constraints for data integrity
+- Use foreign keys to maintain referential integrity
+- Implement soft deletes where appropriate
+
+## Core Tables
+
+### Users Table
+```sql
+-- Users table for storing user account information
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    phone VARCHAR(20),
+    avatar_url TEXT,
+    email_verified BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+    last_login TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for users table
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_users_created_at ON users(created_at);
+```
+
+### Roles Table
+```sql
+-- Roles table for role-based access control
+CREATE TABLE roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(50) UNIQUE NOT NULL,
+    description TEXT,
+    permissions JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert default roles
+INSERT INTO roles (name, description, permissions) VALUES 
+('admin', 'Administrator with full access', '{"*": "*"}'),
+('user', 'Regular user with limited access', '{"read": "*", "write": "own"}');
+```
+
+### User Roles Junction Table
+```sql
+-- Junction table for many-to-many relationship between users and roles
+CREATE TABLE user_roles (
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    role_id UUID REFERENCES roles(id) ON DELETE CASCADE,
+    assigned_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    assigned_by UUID REFERENCES users(id),
+    PRIMARY KEY (user_id, role_id)
+);
+
+-- Indexes for user_roles table
+CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
+CREATE INDEX idx_user_roles_role_id ON user_roles(role_id);
+```
+
+### Sessions Table
+```sql
+-- Sessions table for storing user session information
+CREATE TABLE sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    token VARCHAR(255) UNIQUE NOT NULL,
+    ip_address INET,
+    user_agent TEXT,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for sessions table
+CREATE INDEX idx_sessions_token ON sessions(token);
+CREATE INDEX idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX idx_sessions_expires_at ON sessions(expires_at);
+```
+
+### {{resourceName}} Table
+```sql
+-- {{resourceName}} table for storing {{resourceDescription}}
+CREATE TABLE {{tableName}} (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending')),
+    created_by UUID REFERENCES users(id),
+    updated_by UUID REFERENCES users(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Indexes for {{tableName}} table
+CREATE INDEX idx_{{tableName}}_name ON {{tableName}}(name);
+CREATE INDEX idx_{{tableName}}_status ON {{tableName}}(status);
+CREATE INDEX idx_{{tableName}}_created_by ON {{tableName}}(created_by);
+CREATE INDEX idx_{{tableName}}_created_at ON {{tableName}}(created_at);
+```
+
+### Audit Logs Table
+```sql
+-- Audit logs table for tracking changes to records
+CREATE TABLE audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    table_name VARCHAR(100) NOT NULL,
+    record_id UUID NOT NULL,
+    action VARCHAR(10) NOT NULL CHECK (action IN ('INSERT', 'UPDATE', 'DELETE')),
+    old_values JSONB,
+    new_values JSONB,
+    user_id UUID REFERENCES users(id),
+    ip_address INET,
+    user_agent TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for audit_logs table
+CREATE INDEX idx_audit_logs_table_name ON audit_logs(table_name);
+CREATE INDEX idx_audit_logs_record_id ON audit_logs(record_id);
+CREATE INDEX idx_audit_logs_action ON audit_logs(action);
+CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
+CREATE INDEX idx_audit_logs_created_at ON audit_logs(created_at);
+```
+
+## Functions and Triggers
+
+### Update Timestamp Function
+```sql
+-- Function to automatically update the updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+```
+
+### Soft Delete Function
+```sql
+-- Function to handle soft deletes
+CREATE OR REPLACE FUNCTION soft_delete_record()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.deleted_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+```
+
+### Audit Log Trigger Function
+```sql
+-- Function to log changes to tables
+CREATE OR REPLACE FUNCTION log_audit_changes()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'DELETE') THEN
+        INSERT INTO audit_logs (table_name, record_id, action, old_values, user_id)
+        VALUES (TG_TABLE_NAME, OLD.id, TG_OP, row_to_json(OLD), NULL);
+        RETURN OLD;
+    ELSIF (TG_OP = 'UPDATE') THEN
+        INSERT INTO audit_logs (table_name, record_id, action, old_values, new_values, user_id)
+        VALUES (TG_TABLE_NAME, NEW.id, TG_OP, row_to_json(OLD), row_to_json(NEW), NULL);
+        RETURN NEW;
+    ELSIF (TG_OP = 'INSERT') THEN
+        INSERT INTO audit_logs (table_name, record_id, action, new_values, user_id)
+        VALUES (TG_TABLE_NAME, NEW.id, TG_OP, row_to_json(NEW), NULL);
+        RETURN NEW;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+## Triggers
+
+### Update Timestamp Triggers
+```sql
+-- Triggers to automatically update updated_at columns
+CREATE TRIGGER update_users_updated_at 
+    BEFORE UPDATE ON users 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_roles_updated_at 
+    BEFORE UPDATE ON roles 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_{{tableName}}_updated_at 
+    BEFORE UPDATE ON {{tableName}} 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+```
+
+### Audit Log Triggers
+```sql
+-- Triggers to log changes to important tables
+CREATE TRIGGER audit_{{tableName}}_changes
+    AFTER INSERT OR UPDATE OR DELETE ON {{tableName}}
+    FOR EACH ROW EXECUTE FUNCTION log_audit_changes();
+```
+
+## Views
+
+### Active Users View
+```sql
+-- View to get all active users
+CREATE VIEW active_users AS
+SELECT 
+    id,
+    email,
+    username,
+    first_name,
+    last_name,
+    phone,
+    avatar_url,
+    last_login,
+    created_at
+FROM users 
+WHERE is_active = TRUE AND email_verified = TRUE;
+```
+
+### User Roles View
+```sql
+-- View to get users with their roles
+CREATE VIEW users_with_roles AS
+SELECT 
+    u.id,
+    u.email,
+    u.username,
+    u.first_name,
+    u.last_name,
+    ARRAY_AGG(r.name) as roles
+FROM users u
+LEFT JOIN user_roles ur ON u.id = ur.user_id
+LEFT JOIN roles r ON ur.role_id = r.id
+WHERE u.is_active = TRUE
+GROUP BY u.id, u.email, u.username, u.first_name, u.last_name;
+```
+
+## Indexes Summary
+
+### Performance Indexes
+```sql
+-- Composite indexes for common query patterns
+CREATE INDEX idx_{{tableName}}_status_created_by ON {{tableName}}(status, created_by);
+CREATE INDEX idx_{{tableName}}_name_trigram ON {{tableName}} USING gin(name gin_trgm_ops);
+```
+
+### Full-Text Search Index
+```sql
+-- Full-text search index for description fields
+ALTER TABLE {{tableName}} ADD COLUMN searchable tsvector 
+    GENERATED ALWAYS AS (
+        setweight(to_tsvector('english', coalesce(name, '')), 'A') ||
+        setweight(to_tsvector('english', coalesce(description, '')), 'B')
+    ) STORED;
+
+CREATE INDEX idx_{{tableName}}_searchable ON {{tableName}} USING gin(searchable);
+```
+
+## Security Considerations
+
+### Row Level Security
+```sql
+-- Enable row level security on sensitive tables
+ALTER TABLE {{tableName}} ENABLE ROW LEVEL SECURITY;
+
+-- Policy to allow users to see only their own records
+CREATE POLICY {{tableName}}_owner_policy ON {{tableName}}
+    FOR ALL TO PUBLIC
+    USING (created_by = current_user_id());
+
+-- Policy to allow admins to see all records
+CREATE POLICY {{tableName}}_admin_policy ON {{tableName}}
+    FOR ALL TO admin
+    USING (true);
+```
+
+### Data Encryption
+```sql
+-- Extension for encryption
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- Example of encrypted column
+ALTER TABLE users ADD COLUMN encrypted_ssn BYTEA;
+```
+
+## Maintenance Procedures
+
+### Cleanup Expired Sessions
+```sql
+-- Function to clean up expired sessions
+CREATE OR REPLACE FUNCTION cleanup_expired_sessions()
+RETURNS INTEGER AS $$
+DECLARE
+    deleted_count INTEGER;
+BEGIN
+    DELETE FROM sessions WHERE expires_at < NOW();
+    GET DIAGNOSTICS deleted_count = ROW_COUNT;
+    RETURN deleted_count;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Schedule this function to run daily
+-- SELECT cron.schedule('cleanup-sessions', '0 2 * * *', $$SELECT cleanup_expired_sessions()$$);
+```
+
+### Archive Old Records
+```sql
+-- Function to archive old records
+CREATE OR REPLACE FUNCTION archive_old_records(table_name TEXT, days_old INTEGER)
+RETURNS INTEGER AS $$
+DECLARE
+    archived_count INTEGER;
+BEGIN
+    EXECUTE format('
+        INSERT INTO %I_archive 
+        SELECT * FROM %I 
+        WHERE created_at < NOW() - INTERVAL ''%s days''
+        ON CONFLICT (id) DO NOTHING',
+        table_name, table_name, days_old
+    );
+    
+    EXECUTE format('
+        DELETE FROM %I 
+        WHERE created_at < NOW() - INTERVAL ''%s days''',
+        table_name, days_old
+    );
+    
+    GET DIAGNOSTICS archived_count = ROW_COUNT;
+    RETURN archived_count;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+## Backup and Recovery
+
+### Backup Script
+```bash
+#!/bin/bash
+# backup.sh
+
+DB_NAME="{{databaseName}}"
+BACKUP_DIR="/backups"
+DATE=$(date +"%Y%m%d_%H%M%S")
+BACKUP_FILE="$BACKUP_DIR/${DB_NAME}_$DATE.sql"
+
+# Create backup
+pg_dump -U postgres -h localhost $DB_NAME > $BACKUP_FILE
+
+# Compress backup
+gzip $BACKUP_FILE
+
+# Remove backups older than 30 days
+find $BACKUP_DIR -name "${DB_NAME}_*.sql.gz" -mtime +30 -delete
+
+echo "Backup completed: ${BACKUP_FILE}.gz"
+```
+
+## Monitoring Queries
+
+### Database Size
+```sql
+-- Check database size
+SELECT 
+    pg_size_pretty(pg_database_size('{{databaseName}}')) AS database_size,
+    pg_size_pretty(pg_indexes_size('{{databaseName}}')) AS indexes_size;
+```
+
+### Table Sizes
+```sql
+-- Check table sizes
+SELECT 
+    schemaname,
+    tablename,
+    pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS total_size,
+    pg_size_pretty(pg_relation_size(schemaname||'.'||tablename)) AS table_size
+FROM pg_tables 
+WHERE schemaname = 'public'
+ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
+```
+
+### Slow Queries
+```sql
+-- Check slow queries (requires pg_stat_statements extension)
+SELECT 
+    query,
+    calls,
+    total_time,
+    mean_time,
+    rows
+FROM pg_stat_statements 
+ORDER BY total_time DESC 
+LIMIT 10;
+```
+
+## Connection Pool Configuration
+```sql
+-- Recommended settings for connection pooling
+-- In postgresql.conf:
+-- max_connections = 200
+-- shared_buffers = 256MB
+-- effective_cache_size = 1GB
+-- maintenance_work_mem = 64MB
+-- checkpoint_completion_target = 0.9
+-- wal_buffers = 16MB
+-- default_statistics_target = 100
+-- random_page_cost = 1.1
+-- effective_io_concurrency = 200
+-- work_mem = 4MB
+-- min_wal_size = 1GB
+-- max_wal_size = 4GB
+```
+
+## Success Criteria
+- Database queries respond within 100ms for 95% of requests
+- Database size grows linearly with data volume
+- Backup and recovery procedures tested monthly
+- 99.9% uptime
+- All tables properly indexed for common query patterns
+- Security policies implemented and tested
+- Audit logging captures all important changes

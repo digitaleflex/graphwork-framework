@@ -1,0 +1,411 @@
+<!-- Financial Trading Platform Template -->
+# {{companyName}} Trading Platform
+
+## Overview
+This document describes the trading platform for {{companyName}}, a financial services company providing online trading services. The platform will support equities, options, futures, and forex trading with real-time market data, advanced charting, and risk management capabilities.
+
+## Regulatory Compliance Requirements
+
+### Financial Regulations
+- **SEC Compliance**: Securities and Exchange Commission regulations
+- **FINRA Compliance**: Financial Industry Regulatory Authority requirements
+- **MiFID II**: Markets in Financial Instruments Directive compliance
+- **SOX Compliance**: Sarbanes-Oxley Act requirements for financial reporting
+- **AML/KYC**: Anti-Money Laundering and Know Your Customer procedures
+
+### Data Protection
+- **GDPR**: General Data Protection Regulation for EU customers
+- **PCI DSS**: Payment Card Industry Data Security Standard
+- **SOX**: Sarbanes-Oxley Act for financial data integrity
+
+## Functional Requirements
+
+### User Management
+- **Account Registration**: Multi-step registration with identity verification
+- **Profile Management**: Personal and financial information management
+- **Document Management**: Secure document upload and storage
+- **Beneficiary Management**: Manage bank accounts and withdrawal beneficiaries
+- **Two-Factor Authentication**: Multi-factor authentication for all accounts
+
+### Trading Features
+- **Market Data**: Real-time and delayed market data feeds
+- **Order Management**: Buy/sell orders with market, limit, stop, and bracket orders
+- **Portfolio Management**: Real-time portfolio tracking and performance analysis
+- **Risk Management**: Position limits, margin monitoring, and risk alerts
+- **Algorithmic Trading**: Support for custom trading algorithms
+- **Paper Trading**: Risk-free practice trading environment
+
+### Order Types
+- **Market Orders**: Immediate execution at current market price
+- **Limit Orders**: Execute at specified price or better
+- **Stop Orders**: Trigger market order when price reaches specified level
+- **Stop-Limit Orders**: Stop order that becomes limit order when triggered
+- **Bracket Orders**: OCO (One Cancels Other) order combinations
+- **Trailing Stop Orders**: Stop order that adjusts with market movement
+
+### Analytics and Reporting
+- **Performance Reports**: Portfolio performance and benchmarking
+- **Tax Reporting**: Capital gains and tax reporting
+- **Transaction History**: Detailed transaction records
+- **Audit Trails**: Comprehensive audit logs for compliance
+- **Custom Reports**: User-defined reporting capabilities
+
+### Risk Management
+- **Position Limits**: Maximum position sizes per instrument
+- **Margin Monitoring**: Real-time margin calculations and alerts
+- **Loss Limits**: Daily/weekly/monthly loss limits
+- **Risk Alerts**: Real-time risk notifications
+- **Portfolio Diversification**: Diversification analysis and recommendations
+
+## Non-Functional Requirements
+
+### Performance
+- **Latency**: Order execution latency < 50ms for 95% of orders
+- **Throughput**: Support for 100,000+ concurrent users
+- **Uptime**: 99.99% system availability
+- **Scalability**: Horizontal scaling to handle peak trading volumes
+- **Disaster Recovery**: Recovery time objective (RTO) < 2 hours
+
+### Security
+- **Encryption**: AES-256 encryption for data at rest, TLS 1.3 for data in transit
+- **Authentication**: OAuth 2.0 with multi-factor authentication
+- **Authorization**: Role-based access control with fine-grained permissions
+- **Audit Logging**: Comprehensive audit trail of all system activities
+- **Fraud Detection**: Real-time fraud detection and prevention
+
+### Reliability
+- **Fault Tolerance**: Automatic failover and redundancy
+- **Data Integrity**: ACID compliance for all financial transactions
+- **Backup and Recovery**: Daily backups with point-in-time recovery
+- **Monitoring**: 24/7 system monitoring with automated alerts
+
+### Usability
+- **Intuitive Interface**: User-friendly interface with minimal learning curve
+- **Customization**: Customizable dashboards and layouts
+- **Mobile Support**: Native mobile apps for iOS and Android
+- **Accessibility**: WCAG 2.1 AA compliance
+- **Multi-language**: Support for {{language}} and other major languages
+
+## Technical Architecture
+
+### System Components
+
+#### Frontend
+- **Web Application**: React.js with TypeScript and Redux
+- **Mobile Apps**: Native iOS (Swift) and Android (Kotlin) applications
+- **Desktop Application**: Electron-based desktop application
+- **Charting Library**: TradingView or similar advanced charting solution
+
+#### Backend
+- **Core Services**: Node.js with TypeScript and NestJS
+- **Order Management**: High-performance order matching engine
+- **Risk Management**: Real-time risk calculation and monitoring
+- **Market Data**: Real-time market data distribution system
+- **Analytics Engine**: Big data analytics for performance reporting
+
+#### Database
+- **Transactional Database**: PostgreSQL for ACID-compliant transactions
+- **Time-Series Database**: InfluxDB for market data and analytics
+- **Cache Layer**: Redis for high-speed data access
+- **Document Storage**: MongoDB for unstructured data
+
+#### Infrastructure
+- **Cloud Platform**: AWS or Google Cloud Platform
+- **Containerization**: Docker for application containerization
+- **Orchestration**: Kubernetes for container orchestration
+- **Message Queue**: Apache Kafka for real-time data streaming
+- **Load Balancing**: NGINX or cloud load balancer
+
+### Data Models
+
+#### User
+```json
+{
+  "id": "uuid",
+  "username": "string",
+  "email": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "dateOfBirth": "date",
+  "nationality": "string",
+  "taxResidency": "string",
+  "phoneNumber": "string",
+  "address": {
+    "street": "string",
+    "city": "string",
+    "state": "string",
+    "zipCode": "string",
+    "country": "string"
+  },
+  "kycStatus": "enum(pending, approved, rejected)",
+  "accountTier": "enum(basic, silver, gold, platinum)",
+  "riskLevel": "enum(conservative, moderate, aggressive)",
+  "createdAt": "datetime",
+  "updatedAt": "datetime",
+  "lastLoginAt": "datetime"
+}
+```
+
+#### Account
+```json
+{
+  "id": "uuid",
+  "userId": "uuid",
+  "accountNumber": "string",
+  "accountType": "enum(cash, margin, isa, retirement)",
+  "currency": "string",
+  "balance": "decimal",
+  "availableBalance": "decimal",
+  "marginBalance": "decimal",
+  "buyingPower": "decimal",
+  "status": "enum(active, inactive, suspended, closed)",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+#### Instrument
+```json
+{
+  "id": "uuid",
+  "symbol": "string",
+  "name": "string",
+  "type": "enum(equity, option, future, forex, crypto)",
+  "exchange": "string",
+  "currency": "string",
+  "lotSize": "number",
+  "tickSize": "decimal",
+  "minPrice": "decimal",
+  "maxPrice": "decimal",
+  "marginRequirement": "decimal",
+  "commissionRate": "decimal",
+  "isActive": "boolean",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+#### Order
+```json
+{
+  "id": "uuid",
+  "accountId": "uuid",
+  "instrumentId": "uuid",
+  "orderType": "enum(market, limit, stop, stop_limit, trailing_stop)",
+  "side": "enum(buy, sell)",
+  "quantity": "decimal",
+  "price": "decimal",
+  "stopPrice": "decimal",
+  "timeInForce": "enum(day, gtc, ioc, fok)",
+  "status": "enum(pending, working, filled, cancelled, rejected, expired)",
+  "filledQuantity": "decimal",
+  "averagePrice": "decimal",
+  "commission": "decimal",
+  "createdAt": "datetime",
+  "updatedAt": "datetime",
+  "expiresAt": "datetime"
+}
+```
+
+#### Position
+```json
+{
+  "id": "uuid",
+  "accountId": "uuid",
+  "instrumentId": "uuid",
+  "side": "enum(long, short)",
+  "quantity": "decimal",
+  "averagePrice": "decimal",
+  "marketValue": "decimal",
+  "unrealizedPnl": "decimal",
+  "realizedPnl": "decimal",
+  "createdAt": "datetime",
+  "updatedAt": "datetime"
+}
+```
+
+#### Execution
+```json
+{
+  "id": "uuid",
+  "orderId": "uuid",
+  "executionId": "string",
+  "quantity": "decimal",
+  "price": "decimal",
+  "commission": "decimal",
+  "executionTime": "datetime",
+  "liquidity": "enum(added, removed)",
+  "createdAt": "datetime"
+}
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login with MFA
+- `POST /api/auth/logout` - User logout
+- `POST /api/auth/refresh` - Refresh authentication token
+
+### User Management
+- `GET /api/users/profile` - Get user profile
+- `PUT /api/users/profile` - Update user profile
+- `POST /api/users/documents` - Upload user documents
+- `GET /api/users/documents` - List user documents
+
+### Account Management
+- `GET /api/accounts` - List user accounts
+- `GET /api/accounts/{id}` - Get account details
+- `POST /api/accounts` - Create new account
+- `PUT /api/accounts/{id}` - Update account settings
+
+### Market Data
+- `GET /api/market/instruments` - List available instruments
+- `GET /api/market/instruments/{symbol}` - Get instrument details
+- `GET /api/market/quotes/{symbol}` - Get real-time quote
+- `GET /api/market/history/{symbol}` - Get historical data
+
+### Order Management
+- `GET /api/orders` - List orders with filtering
+- `GET /api/orders/{id}` - Get order details
+- `POST /api/orders` - Place new order
+- `DELETE /api/orders/{id}` - Cancel order
+- `PUT /api/orders/{id}` - Modify existing order
+
+### Portfolio Management
+- `GET /api/portfolio/positions` - Get portfolio positions
+- `GET /api/portfolio/history` - Get portfolio history
+- `GET /api/portfolio/performance` - Get portfolio performance
+- `GET /api/portfolio/analytics` - Get portfolio analytics
+
+### Reporting
+- `GET /api/reports/transactions` - Get transaction history
+- `GET /api/reports/tax` - Get tax reporting data
+- `GET /api/reports/performance` - Get performance reports
+- `POST /api/reports/custom` - Generate custom reports
+
+## Risk Management System
+
+### Position Limits
+```typescript
+interface PositionLimit {
+  userId: string;
+  instrumentId?: string;
+  accountType: string;
+  maxPositionValue: number;
+  maxPositionQuantity: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Margin Requirements
+```typescript
+interface MarginRequirement {
+  instrumentId: string;
+  initialMargin: number;
+  maintenanceMargin: number;
+  haircut: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+```
+
+### Risk Alerts
+```typescript
+interface RiskAlert {
+  id: string;
+  userId: string;
+  accountId: string;
+  alertType: 'position_limit' | 'margin_call' | 'loss_limit' | 'market_volatility';
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  message: string;
+  triggeredAt: Date;
+  resolvedAt?: Date;
+  resolvedBy?: string;
+}
+```
+
+## Compliance Framework
+
+### KYC/AML Procedures
+- **Customer Due Diligence**: Identity verification and background checks
+- **Ongoing Monitoring**: Continuous transaction monitoring
+- **Suspicious Activity Reporting**: Automated SAR generation
+- **Sanctions Screening**: Real-time screening against sanctions lists
+
+### Trade Surveillance
+- **Market Abuse Detection**: Detection of insider trading and market manipulation
+- **Order Abuse Detection**: Detection of layering, spoofing, and other manipulative practices
+- **Pattern Recognition**: Identification of unusual trading patterns
+
+### Audit Trail
+- **Comprehensive Logging**: All user activities and system events
+- **Immutable Logs**: Tamper-proof audit trail storage
+- **Regulatory Reporting**: Automated generation of regulatory reports
+
+## Security Measures
+
+### Data Encryption
+- **At Rest**: AES-256 encryption for all sensitive data
+- **In Transit**: TLS 1.3 encryption for all communications
+- **Key Management**: Hardware Security Modules (HSMs) for key storage
+
+### Access Control
+- **Role-Based Access**: Fine-grained permissions based on job roles
+- **Multi-Factor Authentication**: MFA for all users
+- **Session Management**: Automatic timeout and secure session handling
+
+### Fraud Prevention
+- **Real-Time Monitoring**: Continuous monitoring for suspicious activities
+- **Behavioral Analytics**: Machine learning-based fraud detection
+- **Transaction Limits**: Automated transaction limit enforcement
+
+## Implementation Plan
+
+### Phase 1: Core Platform (Months 1-4)
+- User registration and authentication
+- Basic account management
+- Instrument and market data management
+- Core security and compliance framework
+
+### Phase 2: Trading Functionality (Months 5-8)
+- Order management system
+- Portfolio management
+- Basic risk management
+- Mobile application development
+
+### Phase 3: Advanced Features (Months 9-12)
+- Algorithmic trading support
+- Advanced analytics and reporting
+- Enhanced risk management
+- Regulatory reporting
+
+### Phase 4: Optimization and Scale (Months 13-16)
+- Performance optimization
+- High availability and disaster recovery
+- Advanced compliance features
+- International expansion support
+
+## Monitoring and Operations
+
+### System Monitoring
+- **Infrastructure Monitoring**: CPU, memory, disk, and network usage
+- **Application Monitoring**: API response times and error rates
+- **Business Monitoring**: Trading volumes and transaction metrics
+- **Security Monitoring**: Intrusion detection and security events
+
+### Incident Response
+- **24/7 Operations**: Around-the-clock monitoring and support
+- **Incident Management**: Automated incident detection and escalation
+- **Disaster Recovery**: Automated failover and recovery procedures
+- **Business Continuity**: Backup trading systems for critical failures
+
+## Success Metrics
+- Order execution latency < 50ms for 95% of orders
+- 99.99% system uptime
+- Zero critical security incidents
+- 100% regulatory compliance
+- Customer satisfaction rating > 4.5/5
+- Daily trading volume > ${{dailyVolume}} million
+- Mean time to recovery (MTTR) < 30 minutes

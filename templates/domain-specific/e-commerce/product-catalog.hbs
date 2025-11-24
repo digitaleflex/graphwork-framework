@@ -1,0 +1,189 @@
+<!-- E-commerce Product Catalog Template -->
+# {{domain}} Product Catalog System
+
+## Overview
+This document describes the product catalog system for {{companyName}}'s e-commerce platform. The system will manage product information, inventory, pricing, and categorization.
+
+## Functional Requirements
+
+### Product Management
+- **Add New Products**: Ability to add new products with detailed information
+- **Edit Product Information**: Update product details including name, description, images, specifications
+- **Delete Products**: Remove products from the catalog
+- **Bulk Import/Export**: Import products from CSV/Excel, export product data
+
+### Product Information
+- **Basic Details**: Name, description, SKU, UPC/EAN
+- **Categorization**: Primary and secondary categories, tags
+- **Pricing**: Base price, sale price, cost price, tax information
+- **Inventory**: Stock quantity, stock status, warehouse location
+- **Media**: Images, videos, 3D models
+- **Specifications**: Size, weight, color, material, dimensions
+- **SEO**: Meta title, meta description, URL slug
+
+### Category Management
+- **Hierarchical Categories**: Multi-level category structure
+- **Category Attributes**: Define attributes specific to each category
+- **Category SEO**: Meta information for categories
+
+### Search and Filtering
+- **Advanced Search**: Search by multiple criteria
+- **Faceted Filtering**: Filter by price, category, attributes, brand
+- **Sorting Options**: Sort by price, popularity, rating, date added
+
+## Non-Functional Requirements
+
+### Performance
+- Page load time: Under 2 seconds for catalog pages
+- Search response time: Under 500ms
+- Support for 10,000+ concurrent users
+
+### Scalability
+- Horizontal scaling capability
+- Database optimization for large product catalogs
+- Caching mechanisms for frequently accessed data
+
+### Security
+- Protection against SQL injection and XSS attacks
+- Secure image upload and storage
+- Role-based access control for admin functions
+
+### Reliability
+- 99.9% uptime
+- Automated backup and recovery
+- Error handling and logging
+
+## Technical Architecture
+
+### Frontend
+- **Framework**: React.js with Redux
+- **UI Library**: Material-UI or Ant Design
+- **Responsive Design**: Mobile-first approach
+- **SEO Optimization**: Server-side rendering with Next.js
+
+### Backend
+- **Language**: Node.js with TypeScript
+- **Framework**: Express.js or NestJS
+- **API**: RESTful API with GraphQL support
+- **Authentication**: JWT-based authentication
+
+### Database
+- **Primary**: PostgreSQL for relational data
+- **Search**: Elasticsearch for product search
+- **Cache**: Redis for caching frequently accessed data
+
+### Storage
+- **Images**: Cloud storage (AWS S3, Google Cloud Storage)
+- **Documents**: Local storage with CDN distribution
+
+### Infrastructure
+- **Hosting**: AWS or Google Cloud Platform
+- **Containerization**: Docker
+- **Orchestration**: Kubernetes
+- **CI/CD**: GitHub Actions or Jenkins
+
+## Data Models
+
+### Product
+```json
+{
+  "id": "uuid",
+  "sku": "string",
+  "name": "string",
+  "slug": "string",
+  "description": "text",
+  "shortDescription": "string",
+  "categories": ["categoryId"],
+  "tags": ["string"],
+  "price": {
+    "base": "number",
+    "sale": "number",
+    "cost": "number",
+    "currency": "string"
+  },
+  "inventory": {
+    "quantity": "number",
+    "status": "enum(in_stock, out_of_stock, backorder)",
+    "warehouseLocation": "string"
+  },
+  "images": ["imageUrl"],
+  "specifications": {
+    "weight": "number",
+    "dimensions": {
+      "length": "number",
+      "width": "number",
+      "height": "number"
+    },
+    "color": "string",
+    "material": "string"
+  },
+  "seo": {
+    "metaTitle": "string",
+    "metaDescription": "string",
+    "keywords": ["string"]
+  },
+  "createdAt": "datetime",
+  "updatedAt": "datetime",
+  "status": "enum(active, inactive, draft)"
+}
+```
+
+### Category
+```json
+{
+  "id": "uuid",
+  "name": "string",
+  "slug": "string",
+  "description": "text",
+  "parentId": "categoryId",
+  "attributes": ["attributeId"],
+  "seo": {
+    "metaTitle": "string",
+    "metaDescription": "string",
+    "keywords": ["string"]
+  },
+  "createdAt": "datetime",
+  "updatedAt": "datetime",
+  "status": "enum(active, inactive)"
+}
+```
+
+## API Endpoints
+
+### Product Endpoints
+- `GET /api/products` - List products with pagination and filtering
+- `GET /api/products/{id}` - Get product details
+- `POST /api/products` - Create new product
+- `PUT /api/products/{id}` - Update product
+- `DELETE /api/products/{id}` - Delete product
+- `POST /api/products/bulk-import` - Bulk import products
+
+### Category Endpoints
+- `GET /api/categories` - List categories
+- `GET /api/categories/{id}` - Get category details
+- `POST /api/categories` - Create new category
+- `PUT /api/categories/{id}` - Update category
+- `DELETE /api/categories/{id}` - Delete category
+
+## Implementation Plan
+
+### Phase 1: Core Product Management
+- Basic CRUD operations for products
+- Simple category management
+- Initial data models and database schema
+
+### Phase 2: Advanced Features
+- Search and filtering capabilities
+- Image management and optimization
+- Bulk import/export functionality
+
+### Phase 3: Performance and Scale
+- Caching implementation
+- Database optimization
+- Load testing and performance tuning
+
+## Success Metrics
+- Product page load time under 2 seconds
+- Search response time under 500ms
+- 99.9% system availability
+- Support for 10,000+ concurrent users
