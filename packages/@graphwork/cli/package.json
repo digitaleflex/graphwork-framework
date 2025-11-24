@@ -1,0 +1,41 @@
+{
+  "name": "@graphwork/cli",
+  "version": "2.0.0-rc.1",
+  "description": "Command Line Interface for GraphWork Framework 2.0",
+  "main": "dist/index.js",
+  "bin": {
+    "gw": "./bin/run.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@graphwork/core": "^2.0.0-rc.1",
+    "@graphwork/knowledge-base": "^2.0.0-rc.1",
+    "@oclif/command": "^1.8.0",
+    "@oclif/config": "^1.17.0",
+    "@oclif/plugin-help": "^3.2.0",
+    "chalk": "^4.1.0",
+    "inquirer": "^8.0.0",
+    "ora": "^5.0.0",
+    "yargs": "^17.0.0"
+  },
+  "devDependencies": {
+    "@types/yargs": "^17.0.0",
+    "@types/inquirer": "^8.0.0"
+  },
+  "keywords": [
+    "cli",
+    "ai",
+    "development",
+    "framework",
+    "graphwork"
+  ],
+  "author": "GraphMind Organization",
+  "license": "MIT"
+}

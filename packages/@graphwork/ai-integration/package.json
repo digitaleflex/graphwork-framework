@@ -1,0 +1,30 @@
+{
+  "name": "@graphwork/ai-integration",
+  "version": "2.0.0-rc.1",
+  "description": "AI integration layer for GraphWork Framework 2.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@graphwork/knowledge-base": "^2.0.0-rc.1",
+    "@graphwork/templates": "^2.0.0-rc.1",
+    "typescript": "^4.8.0",
+    "axios": "^0.27.0",
+    "openai": "^3.0.0"
+  },
+  "keywords": [
+    "ai",
+    "integration",
+    "openai",
+    "framework",
+    "graphwork"
+  ],
+  "author": "GraphMind Organization",
+  "license": "MIT"
+}

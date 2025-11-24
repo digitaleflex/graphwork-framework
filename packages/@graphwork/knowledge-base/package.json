@@ -1,0 +1,29 @@
+{
+  "name": "@graphwork/knowledge-base",
+  "version": "2.0.0-rc.1",
+  "description": "Knowledge base system for GraphWork Framework 2.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "typescript": "^4.8.0",
+    "fs-extra": "^10.0.0",
+    "glob": "^8.0.0",
+    "lodash": "^4.17.0"
+  },
+  "keywords": [
+    "knowledge",
+    "base",
+    "context",
+    "framework",
+    "graphwork"
+  ],
+  "author": "GraphMind Organization",
+  "license": "MIT"
+}

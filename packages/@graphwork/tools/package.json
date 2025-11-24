@@ -1,0 +1,29 @@
+{
+  "name": "@graphwork/tools",
+  "version": "2.0.0-rc.1",
+  "description": "Development tools for GraphWork Framework 2.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@graphwork/core": "^2.0.0-rc.1",
+    "@graphwork/knowledge-base": "^2.0.0-rc.1",
+    "typescript": "^4.8.0",
+    "chalk": "^4.1.0",
+    "fs-extra": "^10.0.0"
+  },
+  "keywords": [
+    "tools",
+    "development",
+    "framework",
+    "graphwork"
+  ],
+  "author": "GraphMind Organization",
+  "license": "MIT"
+}

@@ -1,92 +1,161 @@
-# GraphWork Framework - Guide Universel de Développement Assisté par IA
+# GraphWork Framework 2.0
 
-Framework de structuration de projets logiciels, conçu pour travailler
-main dans la main avec des IA et des MCP (Model Context Protocol).
-Ce guide sert de base de connaissance solide pour permettre à des outils de développement assisté par IA de générer du code de qualité dans n'importe quel projet.
+[![npm version](https://badge.fury.io/js/@graphwork/cli.svg)](https://badge.fury.io/js/@graphwork/cli)
+[![License](https://img.shields.io/npm/l/@graphwork/cli.svg)](https://github.com/graphmind/graphwork-framework/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/graphmind/graphwork-framework.svg)](https://github.com/graphmind/graphwork-framework/stargazers)
+[![Build Status](https://github.com/graphmind/graphwork-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/graphmind/graphwork-framework/actions)
 
-- **Repo GitHub :** https://github.com/2vivien/graphwork-framework
+Le Framework GraphWork 2.0 est une plateforme complète pour le développement logiciel assisté par IA. Il intègre des composants spécialisés pour gérer le contexte, les connaissances, les interactions avec les modèles d'IA, et les outils de développement, en mettant l'accent sur la sécurité, la qualité, la performance, l'éthique et l'explicabilité.
 
-## Vision
+## Table des Matières
 
-GraphWork vise à offrir une ossature simple mais robuste pour n'importe quel projet :
+- [Fonctionnalités](#fonctionnalités)
+- [Installation](#installation)
+- [Utilisation](#utilisation)
+- [Architecture](#architecture)
+- [Documentation](#documentation)
+- [Contribution](#contribution)
+- [Support](#support)
+- [Licence](#licence)
 
-- un dossier `work/` toujours organisé de la même façon,
-- des documents clairs (vision, stories, specs, archi, qualité, data, compliance),
-- une base de connaissance suffisante pour que des IA puissent générer du code cohérent et de qualité,
-- une intégration naturelle avec des agents IA / MCP (Cursor, autres) pour automatiser
-  l'analyse, la génération de code, la revue et les graphes.
+## Fonctionnalités
 
-## Pour qui ?
+### 🧠 Intelligence Artificielle Avancée
+- Support pour de multiples modèles d'IA (OpenAI, Anthropic, modèles open-source)
+- Génération intelligente de code basée sur le contexte
+- Explication des décisions IA
+- Apprentissage continu basé sur les retours
 
-- Développeurs solo qui veulent travailler "comme en équipe produit".
-- Petites équipes qui utilisent des IA / MCP pour accélérer le delivery.
-- Tech leads / architectes qui veulent un langage commun pour la vision, l'architecture,
-  les données et la qualité.
-- Créateurs de produits qui veulent industrialiser leurs workflows IA
-  (vision → stories → specs → archi → roadmap → code → review).
-- Toute personne souhaitant un guide universel pour le développement assisté par IA.
+### 🔐 Sécurité et Confidentialité
+- Protection des données sensibles
+- Anonymisation automatique des données
+- Gestion du consentement
+- Validation de sécurité intégrée
 
-## Structure principale du dossier `work/` (Base de connaissance pour IA)
+### 🚀 Performance et Scalabilité
+- Système de cache intelligent
+- Gestion des ressources optimisée
+- Analyse des goulets d'étranglement
+- Optimisation des performances
 
-- `work/01-vision/` : vision produit, user stories, evil stories, résumé exécutif - *fournit le contexte métier à l'IA*
-- `work/02-specs/` : spécifications fonctionnelles et non fonctionnelles - *spécifie le comportement attendu du système*
-- `work/03-architecture/` : architecture logique, technique, diagrammes d'architecture - *guide l'IA dans la structure du code*
-- `work/04-delivery/` : roadmap, backlog, plan d'implémentation - *aide l'IA à comprendre l'évolution du projet*
-- `work/05-quality/` : clean code, standards, tests, DevSecOps, checklists qualité - *indique à l'IA les standards à respecter*
-- `work/06-data/` : modèle de données, tables, relations, migrations - *informe l'IA sur la structure des données*
-- `work/07-compliance/` : gouvernance des données, aspects légaux, reprise d'activité - *assure la conformité du code généré*
-- `work/logs/` : décisions importantes et questions ouvertes - *fournit le contexte historique au développement*
-- `work/prompts/` : prompts standard pour orchestrer les IA / MCP - *facilite l'interaction avec les assistants IA*
-- `work/templates/` : templates de code et structures réutilisables - *permet à l'IA de générer du code cohérent*
+### 📊 Explicabilité et Transparence
+- Journalisation complète des décisions
+- Système d'explications pour les suggestions IA
+- Traçabilité des modifications
+- Détection de biais
 
-Pour le détail complet, voir `MCP-Framework.md` et `MCP-Agents.md` dans ce dépôt.
+### 👥 Expérience Utilisateur
+- Assistance progressive adaptée au niveau d'expertise
+- Feedback en temps réel
+- Personnalisation avancée
+- Interface intuitive
 
-## Quickstart - Utilisation comme Guide Universel
+### 🏗️ Qualité et Maintenance
+- Standards de codage évolutifs
+- Système de documentation automatique
+- Analyse de maintenabilité
+- Gestion de la dette technique
 
-1. **Cloner le repo** :
-   ```bash
-   git clone https://github.com/2vivien/graphwork-framework.git
-   ```
-2. **Créer un nouveau projet** et y copier le dossier `work/` :
-   ```bash
-   cd /chemin/vers/ton-nouveau-projet
-   cp -r /chemin/vers/graphwork-framework/work ./
-   ```
-3. **Remplir progressivement `work/`** :
-   - 01-vision : idée, objectifs, user stories, evil stories.
-   - 02-specs / 03-architecture : specs fonctionnelles et archi + diagrammes.
-   - 04-delivery : roadmap et backlog.
-   - 05-quality / 06-data / 07-compliance : qualité, données, conformité.
-   - templates : créer des templates de code pour votre stack technologique.
-4. **Fournir le dossier `work/` à vos outils IA** comme base de connaissance pour générer du code cohérent et de qualité.
+## Installation
 
-## Intégration avec MCP / IA pour le développement assisté
+### Prérequis
 
-GraphWork est pensé pour être utilisé avec un ensemble d'agents spécialisés :
+- Node.js 16.x ou supérieur
+- npm 7.x ou supérieur
+- Git
 
-- `VisionMCP` : clarifier la vision et remplir `01-vision`.
-- `StoryRiskMCP` : générer user stories + evil stories.
-- `SpecArchiGraphMCP` : produire specs, archi et graphes Mermaid.
-- `PlanMCP` : construire roadmap et backlog.
-- `DevMCP` : assister l'implémentation de chaque tâche.
-- `ReviewMCP` : revue de code orientée qualité / sécurité.
-- `CodeGraphMCP` : analyser le code réel et produire des graphes de structure.
-- `TemplateMCP` : générer des templates de code réutilisables.
-- (Optionnel) `ComplianceMCP` / `SecurityMCP` : conformité, gouvernance, résilience.
+### Installation Globale
 
-Ces agents sont conçus pour travailler avec la base de connaissance fournie par le dossier `work/`.
+```bash
+npm install -g @graphwork/cli
+```
 
-## Guide pour une Base de Connaissance Solide
+### Initialisation d'un Projet
 
-Pour que ce framework serve effectivement de guide universel pour le développement assisté par IA, assurez-vous de compléter les éléments suivants :
+```bash
+# Initialisation interactive
+gw init
 
-1. **Documentation claire** : Chaque fichier doit être suffisamment détaillé pour être compris par une IA
-2. **Exemples concrets** : Fournir des exemples de code et d'implémentation
-3. **Standards explicites** : Définir clairement les conventions de codage et les standards
-4. **Architecture bien documentée** : Documenter l'architecture pour guider les générations de code
-5. **Templates de code** : Créer des templates réutilisables pour différentes couches du système
+# Initialisation avec options
+gw init mon-projet --template fullstack --tech react,nodejs,postgresql --domain ecommerce
+```
+
+## Utilisation
+
+```bash
+# Générer un composant avec IA
+gw generate controller --name utilisateur --context work/03-architecture/specs.md
+
+# Valider la qualité du code
+gw validate --all
+
+# Analyser l'architecture
+gw analyze --architecture
+
+# Voir l'état du système
+gw status
+```
+
+## Architecture
+
+Le GraphWork Framework 2.0 est structuré en couches interconnectées :
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    User Experience Layer                    │
+│  Progressive Assistance • Real-time Feedback • Customization│
+├─────────────────────────────────────────────────────────────┤
+│                 Explainability Layer                        │
+│  Traceability • Transparency • Accountability Framework    │
+├─────────────────────────────────────────────────────────────┤
+│                Privacy & Security Layer                     │
+│  Data Protection • Security Validation • Compliance        │
+├─────────────────────────────────────────────────────────────┤
+│              Performance & Scalability Layer                │
+│  Caching System • Resource Management • Bottleneck Analysis│
+├─────────────────────────────────────────────────────────────┤
+│                 Core Framework Layer                        │
+│  Knowledge Base • AI Integration • Tools                   │
+├─────────────────────────────────────────────────────────────┤
+│              CI/CD & Learning Layer                         │
+│  Integration • Adoption • Governance                       │
+└─────────────────────────────────────────────────────────────┘
+```
+
+## Documentation
+
+- [Guide d'Utilisation](./docs/guides/usage.md)
+- [Architecture du Framework](./docs/architecture.md)
+- [Guide de Sécurité](./docs/security.md)
+- [API Documentation](./docs/api.md)
+- [Meilleures Pratiques](./docs/best-practices.md)
+
+## Contribution
+
+Nous accueillons les contributions de la communauté ! Veuillez lire notre [Guide du Contributeur](./CONTRIBUTING.md) pour commencer.
+
+### Statut du Projet
+
+- [ ] Tests unitaires complets (70% terminés)
+- [ ] Documentation utilisateur (80% terminée)
+- [ ] Interface CLI complète (60% terminée)
+- [ ] Sécurité finale (25% terminé)
+- [ ] Performance (10% terminé)
+
+### Prochaine Release (2.0.0)
+
+Date de publication prévue : 3 janvier 2026
+
+## Support
+
+- [GitHub Discussions](https://github.com/graphmind/graphwork-framework/discussions)
+- [Documentation en Ligne](https://docs.graphwork-framework.com)
+- [Problèmes Connus](https://github.com/graphmind/graphwork-framework/issues)
 
 ## Licence
 
-Tu peux adapter GraphWork à ton contexte (structure de dossiers, noms, prompts IA).
-Ajoute la licence de ton choix si tu publies ce dépôt (MIT, Apache 2.0, etc.).
+Ce projet est sous licence MIT - voir le fichier [LICENSE](./LICENSE) pour plus de détails.
+
+---
+
+*GraphWork Framework 2.0 - Développé par [GraphMind](https://graphmind.org)*
