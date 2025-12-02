@@ -14,6 +14,8 @@
     "test:performance": "npm run test:performance --workspaces",
     "lint": "eslint . --ext .ts,.js",
     "publish:packages": "node scripts/publish.js",
+    "publish:auto": "node scripts/publish-auto.js",
+    "fix:packages": "node scripts/fix-package-names.js",
     "docs:build": "typedoc",
     "prepare": "husky install"
   },

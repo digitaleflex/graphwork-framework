@@ -72,6 +72,15 @@ npm run publish:packages
 
 Note : Le script `publish:packages` exécute `node scripts/publish.js`, qui détecte automatiquement s'il faut utiliser un tag pour les versions préliminaires et publie avec `--access public` pour éviter les frais.
 
+#### Option 3 : Publication automatique avec gestion de version
+
+```bash
+# Utiliser le script de publication automatique
+npm run publish:auto
+```
+
+Note : Le script `publish:auto` exécute `node scripts/publish-auto.js`, qui gère automatiquement l'incrémentation des versions selon les règles sémantiques et publie tous les packages avec `--access public`.
+
 ### 5. Vérification post-publication
 
 Après publication, vérifiez que les packages sont disponibles sur npm :
