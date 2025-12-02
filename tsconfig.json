@@ -18,11 +18,12 @@
     "incremental": true
   },
   "references": [
+    { "path": "./packages/@graphwork/ai-integration" },
+    { "path": "./packages/@graphwork/cache" },
     { "path": "./packages/@graphwork/cli" },
     { "path": "./packages/@graphwork/core" },
     { "path": "./packages/@graphwork/knowledge-base" },
     { "path": "./packages/@graphwork/templates" },
-    { "path": "./packages/@graphwork/ai-integration" },
     { "path": "./packages/@graphwork/tools" }
   ],
   "include": [
