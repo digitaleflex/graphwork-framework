@@ -1,5 +1,5 @@
 {
-  "name": "graphwork-tools",
+  "name": "@graphwork/tools",
   "version": "2.0.1",
   "description": "Development tools for GraphWork Framework 2.0",
   "main": "dist/index.js",
@@ -21,8 +21,8 @@
     "chalk": "^4.1.0",
     "fs-extra": "^10.0.0",
     "@types/fs-extra": "^9.0.13",
-    "graphwork-core": "^2.0.0",
-    "graphwork-knowledge-base": "^2.0.0"
+    "@graphwork/core": "^2.0.0",
+    "@graphwork/knowledge-base": "^2.0.0"
   },
   "keywords": [
     "tools",

@@ -1,8 +1,16 @@
 # Node / JS
 node_modules/
-.dist/
+dist/
 .env
 .env.*
+
+# Build outputs
+**/dist/
+**/build/
+**/out/
+
+# TypeScript
+*.tsbuildinfo
 
 # Python
 __pycache__/
@@ -16,3 +24,14 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Packages
+*.tgz
+*.zip
+
+# IDE specific files
+*.swp
+*.swo
+
+# Debug files
+debug-*.js
