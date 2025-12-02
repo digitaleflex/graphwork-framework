@@ -1,6 +1,6 @@
 {
   "name": "graphwork-templates",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Template engine for GraphWork Framework 2.0",
   "main": "dist/index.js",
   "files": [

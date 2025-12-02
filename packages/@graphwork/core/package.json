@@ -1,6 +1,6 @@
 {
   "name": "graphwork-core",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Core engine of GraphWork Framework 2.0",
   "main": "dist/index.js",
   "files": [
