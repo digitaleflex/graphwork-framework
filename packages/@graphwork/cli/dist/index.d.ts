@@ -1,2 +1,2 @@
-export { run } from '@oclif/command';
+export { execute } from '@oclif/core';
 //# sourceMappingURL=index.d.ts.map

@@ -5,10 +5,12 @@ Welcome to the GraphWork Framework 2.0 documentation. This framework provides a 
 ## Table of Contents
 
 - [Getting Started](./guides/getting-started.md)
+- [Complete User Guide](./complete-user-guide.md)
+- [Ultimate Usage Guide](./ultimate-usage-guide.md)
+- [Complete Developer Guide](./complete-developer-guide.md)
 - [Architecture Overview](./architecture.md)
 - [Security Guidelines](./security.md)
 - [Best Practices](./best-practices.md)
-- [API Reference](./api.md)
 - [Troubleshooting](./troubleshooting.md)
 
 ## Quick Links

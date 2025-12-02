@@ -26,13 +26,19 @@ Audits code and systems for security vulnerabilities.
 ### 6. Documentation Writer
 Creates comprehensive documentation for code and systems.
 
+## Installation
+
+```bash
+npm install graphwork-ai-agents
+```
+
 ## Usage
 
 ```typescript
-import { SpecificationWriter, CodeGenerator } from '@graphwork/ai-agents';
-import { AIIntegration } from '@graphwork/ai-integration';
-import { KnowledgeBase } from '@graphwork/knowledge-base';
-import { TemplateEngine } from '@graphwork/templates';
+import { SpecificationWriter, CodeGenerator } from 'graphwork-ai-agents';
+import { AIIntegration } from 'graphwork-ai-integration';
+import { KnowledgeBase } from 'graphwork-knowledge-base';
+import { TemplateEngine } from 'graphwork-templates';
 
 // Initialize dependencies
 const aiIntegration = new AIIntegration(config);
@@ -63,7 +69,7 @@ const code = await codeGenerator.execute({
 To create a new agent, extend the BaseAgent class:
 
 ```typescript
-import { BaseAgent } from '@graphwork/ai-agents';
+import { BaseAgent } from 'graphwork-ai-agents';
 
 export class CustomAgent extends BaseAgent {
   constructor() {
@@ -75,3 +81,31 @@ export class CustomAgent extends BaseAgent {
   }
 }
 ```
+
+## API
+
+### BaseAgent
+The base class for all agents.
+
+#### Methods
+- `execute(context: any): Promise<any>` - Executes the agent with the given context
+
+### SpecificationWriter
+Generates technical specifications.
+
+#### Methods
+- `execute(options: SpecificationOptions): Promise<SpecificationResult>`
+
+### CodeGenerator
+Generates code implementations.
+
+#### Methods
+- `execute(options: CodeGenerationOptions): Promise<CodeGenerationResult>`
+
+## Contributing
+
+See our [Contributing Guide](https://github.com/graphmind/graphwork-framework/blob/main/CONTRIBUTING.md) for information on how to contribute to this package.
+
+## License
+
+This package is licensed under the MIT License. See the [LICENSE](https://github.com/graphmind/graphwork-framework/blob/main/LICENSE) file for details.

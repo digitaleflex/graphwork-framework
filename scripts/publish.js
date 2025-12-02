@@ -12,14 +12,14 @@ const path = require('path');
 
 // Liste des workspaces à publier (mis à jour pour les nouveaux noms)
 const workspaces = [
-  'packages/@graphwork/cache',
-  'packages/@graphwork/cli',
-  'packages/@graphwork/core',
-  'packages/@graphwork/knowledge-base',
-  'packages/@graphwork/templates',
-  'packages/@graphwork/tools',
-  'packages/@graphwork/ai-integration',
-  'ai-agents'
+  'packages/graphwork-cache',
+  'packages/graphwork-cli',
+  'packages/graphwork-core',
+  'packages/graphwork-knowledge-base',
+  'packages/graphwork-templates',
+  'packages/graphwork-tools',
+  'packages/graphwork-ai-integration',
+  'packages/graphwork-ai-agents'
 ];
 
 // Vérifier si l'utilisateur est connecté à npm
@@ -42,40 +42,77 @@ try {
   process.exit(1);
 }
 
+// Vérifier le contenu des packages avant publication
+console.log('🔍 Vérification du contenu des packages...');
+for (const workspace of workspaces) {
+  const packagePath = path.join(__dirname, '..', workspace);
+  const packageJsonPath = path.join(packagePath, 'package.json');
+  
+  // Vérifier si le package.json existe
+  if (!fs.existsSync(packageJsonPath)) {
+    console.warn(`⚠️  Package.json non trouvé dans ${workspace}, ignoré`);
+    continue;
+  }
+  
+  // Lire le package.json
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  
+  // Vérifier si la propriété "files" est définie
+  if (!packageJson.files) {
+    console.warn(`⚠️  Aucune liste de fichiers définie pour ${packageJson.name}`);
+    console.warn(`   Les fichiers de test pourraient être inclus dans le package`);
+  }
+}
+
 // Publier chaque package
 for (const workspace of workspaces) {
   const packagePath = path.join(__dirname, '..', workspace);
   const packageJsonPath = path.join(packagePath, 'package.json');
   
+  // Vérifier si le package.json existe
   if (!fs.existsSync(packageJsonPath)) {
-    console.warn(`⚠️  Package non trouvé: ${workspace}`);
+    console.warn(`⚠️  Package.json non trouvé dans ${workspace}, ignoré`);
     continue;
   }
   
+  // Lire le package.json
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const packageName = packageJson.name;
+  const packageVersion = packageJson.version;
+  
+  console.log(`\n📦 Traitement de ${packageName}@${packageVersion}`);
+  
   try {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    console.log(`\n📦 Publication de ${packageJson.name}@${packageJson.version}`);
-    
-    // Déterminer le tag à utiliser
+    // Vérifier si c'est une version préliminaire
     let tagOption = '';
-    if (packageJson.version.includes('-')) {
+    if (packageVersion.includes('-')) {
       // C'est une version préliminaire (alpha, beta, rc, etc.)
-      const tag = packageJson.version.match(/-([a-z]+)/) ? packageJson.version.match(/-([a-z]+)/)[1] : 'prerelease';
+      const tag = packageVersion.match(/-([a-z]+)/) ? packageVersion.match(/-([a-z]+)/)[1] : 'prerelease';
       tagOption = ` --tag ${tag}`;
+      console.log(`   🏷️  Version préliminaire détectée, publication avec le tag: ${tag}`);
     }
     
-    // Publier le package
-    execSync(`npm publish --workspace=${workspace}${tagOption}`, { stdio: 'inherit' });
-    console.log(`✅ Publié ${packageJson.name}`);
+    // Publier avec accès public pour éviter les frais
+    execSync(`npm publish --workspace=${workspace} --access public${tagOption}`, {
+      stdio: 'inherit'
+    });
+    
+    console.log(`✅ Publié ${packageName}@${packageVersion}`);
   } catch (error) {
-    // Si l'erreur est liée au scope, afficher un message d'aide
-    if (error.message.includes('402 Payment Required') || error.message.includes('private packages')) {
-      console.error(`\n❌ Erreur liée au scope. Essayez de :`);
-      console.error(`   1. Modifier le package.json pour utiliser un nom sans scope`);
-      console.error(`   2. Ou créer un compte npm payant pour utiliser l'organisation @graphwork`);
-      console.error(`   3. Ou utiliser votre propre scope personnel`);
+    // Si l'erreur est liée au tag, réessayer sans tag
+    if (error.message && error.message.includes('You must specify a tag using --tag when publishing a prerelease version')) {
+      console.log('   ⚠️  Tentative de publication sans tag pour version préliminaire...');
+      try {
+        execSync(`npm publish --workspace=${workspace} --access public`, {
+          stdio: 'inherit'
+        });
+        console.log(`✅ Publié ${packageName}@${packageVersion} (sans tag)`);
+      } catch (retryError) {
+        console.error(`❌ Échec de publication de ${packageName}:`, retryError.message);
+      }
+    } else {
+      console.error(`❌ Échec de publication de ${packageName}:`, error.message);
     }
-    console.error(`❌ Erreur lors de la publication de ${workspace}:`, error.message);
   }
 }
 

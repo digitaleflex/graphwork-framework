@@ -15,7 +15,7 @@ Before you begin, make sure you have the following installed:
 Install the GraphWork CLI globally:
 
 ```bash
-npm install -g @graphwork/cli
+npm install -g graphwork-cli
 ```
 
 ## Creating Your First Project

@@ -33,47 +33,34 @@ npm test
 
 ### 3. Mise à jour des versions (si nécessaire)
 
-Les packages sont actuellement en version `2.0.0-rc.1`. Vous pouvez :
+Les packages sont actuellement en version `2.0.0`. Vous pouvez :
 
-- Publier tels quels en tant que release candidates (nécessite l'option `--tag`)
-- Mettre à jour vers une version stable `2.0.0`
+- Publier tels quels en tant que versions stables
+- Mettre à jour vers une nouvelle version mineure/majeure
 
 Pour mettre à jour les versions :
 
 ```bash
 # Pour chaque package, mettez à jour le fichier package.json
 # Ou utilisez npm version pour mettre à jour automatiquement
-npm version 2.0.0 --workspaces
+npm version 2.0.1 --workspaces
 ```
 
 ### 4. Publication des packages
 
 #### Option 1 : Publication individuelle
 
-Pour les versions release candidates :
-```bash
-# Publier chaque package individuellement avec le tag approprié
-npm publish --workspace=@graphwork/cache --tag rc
-npm publish --workspace=@graphwork/cli --tag rc
-npm publish --workspace=@graphwork/core --tag rc
-npm publish --workspace=@graphwork/knowledge-base --tag rc
-npm publish --workspace=@graphwork/templates --tag rc
-npm publish --workspace=@graphwork/tools --tag rc
-npm publish --workspace=@graphwork/ai-integration --tag rc
-npm publish --workspace=@graphwork/ai-agents --tag rc
-```
-
 Pour les versions stables :
 ```bash
-# Publier chaque package individuellement
-npm publish --workspace=@graphwork/cache
-npm publish --workspace=@graphwork/cli
-npm publish --workspace=@graphwork/core
-npm publish --workspace=@graphwork/knowledge-base
-npm publish --workspace=@graphwork/templates
-npm publish --workspace=@graphwork/tools
-npm publish --workspace=@graphwork/ai-integration
-npm publish --workspace=@graphwork/ai-agents
+# Publier chaque package individuellement avec accès public
+npm publish --workspace=packages/graphwork-cache --access public
+npm publish --workspace=packages/graphwork/cli --access public
+npm publish --workspace=packages/graphwork/core --access public
+npm publish --workspace=packages/graphwork/knowledge-base --access public
+npm publish --workspace=packages/graphwork/templates --access public
+npm publish --workspace=packages/graphwork/tools --access public
+npm publish --workspace=packages/graphwork/ai-integration --access public
+npm publish --workspace=packages/graphwork/ai-agents --access public
 ```
 
 #### Option 2 : Publication avec le script existant
@@ -83,14 +70,14 @@ npm publish --workspace=@graphwork/ai-agents
 npm run publish:packages
 ```
 
-Note : Le script `publish:packages` exécute `node scripts/publish.js`, qui détecte automatiquement s'il faut utiliser un tag pour les versions préliminaires.
+Note : Le script `publish:packages` exécute `node scripts/publish.js`, qui détecte automatiquement s'il faut utiliser un tag pour les versions préliminaires et publie avec `--access public` pour éviter les frais.
 
 ### 5. Vérification post-publication
 
 Après publication, vérifiez que les packages sont disponibles sur npm :
 
-- https://www.npmjs.com/package/@graphwork/cache
-- https://www.npmjs.com/package/@graphwork/cli
+- https://www.npmjs.com/package/graphwork-cache
+- https://www.npmjs.com/package/graphwork-cli
 - etc.
 
 ## Résolution des problèmes courants
@@ -98,7 +85,7 @@ Après publication, vérifiez que les packages sont disponibles sur npm :
 ### Erreurs de publication
 
 1. **"You do not have permission to publish"**
-   - Vérifiez que vous avez les permissions pour le scope `@graphwork`
+   - Vérifiez que vous avez les permissions pour le scope
    - Vous pouvez publier sous votre propre scope personnel en changeant le nom des packages
 
 2. **"Package name too similar"**
@@ -107,8 +94,8 @@ Après publication, vérifiez que les packages sont disponibles sur npm :
 
 3. **"You must specify a tag using --tag when publishing a prerelease version"**
    - C'est une erreur courante avec les versions préliminaires (rc, beta, alpha)
-   - Ajoutez `--tag rc` (ou le tag approprié) à la commande de publication
-   - Ou mettez à jour vers une version stable
+   - Le script de publication gère automatiquement cela
+   - Ou ajoutez `--tag rc` (ou le tag approprié) à la commande de publication
 
 4. **Erreurs de build**
    - Assurez-vous que `npm run build` fonctionne sans erreurs
@@ -134,23 +121,34 @@ Après publication, vérifiez que les packages sont disponibles sur npm :
    - Vérifiez les dépendances pour les vulnérabilités
    - Utilisez `npm audit` pour identifier les problèmes de sécurité
 
-## Structure des packages
+## Gestion des fichiers de test
 
-Les packages suivants seront publiés :
+Les fichiers de test ne doivent pas être inclus dans les packages publiés sur npm. Pour cela :
 
-1. `@graphwork/cache` - Système de cache LRU et mémoire
-2. `@graphwork/cli` - Interface en ligne de commande
-3. `@graphwork/core` - Moteur principal du framework
-4. `@graphwork/knowledge-base` - Base de connaissances
-5. `@graphwork/templates` - Templates pour la génération de code
-6. `@graphwork/tools` - Outils de développement
-7. `@graphwork/ai-integration` - Intégration avec les modèles d'IA
-8. `@graphwork/ai-agents` - Agents IA spécialisés
+1. Utilisez la propriété `files` dans `package.json` pour spécifier explicitement les fichiers à inclure
+2. Ou utilisez un fichier `.npmignore` pour exclure les fichiers de test
+3. Vérifiez le contenu avec `npm pack --dry-run` avant publication
 
-## Support
+Exemple de configuration dans package.json :
+```json
+{
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
+}
+```
 
-Pour obtenir de l'aide supplémentaire :
-
-- Documentation : https://docs.graphwork-framework.com
-- Issues GitHub : https://github.com/graphmind/graphwork-framework/issues
-- Discussions GitHub : https://github.com/graphmind/graphwork-framework/discussions
+Exemple de fichier `.npmignore` :
+```
+__tests__/
+*.test.ts
+*.spec.ts
+jest.config.js
+tsconfig.json
+.gitignore
+.github/
+docs/
+examples/
+```

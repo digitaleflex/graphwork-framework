@@ -1,7 +1,7 @@
 # GraphWork Framework 2.0
 
-[![npm version](https://badge.fury.io/js/@graphwork/cli.svg)](https://badge.fury.io/js/@graphwork/cli)
-[![License](https://img.shields.io/npm/l/@graphwork/cli.svg)](https://github.com/graphmind/graphwork-framework/blob/main/LICENSE)
+[![npm version](https://badge.fury.io/js/graphwork-cli.svg)](https://badge.fury.io/js/graphwork-cli)
+[![License](https://img.shields.io/npm/l/graphwork-cli.svg)](https://github.com/graphmind/graphwork-framework/blob/main/LICENSE)
 [![GitHub stars](https://img.shields.io/github/stars/graphmind/graphwork-framework.svg)](https://github.com/graphmind/graphwork-framework/stargazers)
 [![Build Status](https://github.com/graphmind/graphwork-framework/actions/workflows/ci.yml/badge.svg)](https://github.com/graphmind/graphwork-framework/actions)
 
@@ -67,7 +67,7 @@ Le Framework GraphWork 2.0 est une plateforme complète pour le développement l
 ### Installation Globale
 
 ```bash
-npm install -g @graphwork/cli
+npm install -g graphwork-cli
 ```
 
 ### Initialisation d'un Projet
@@ -124,10 +124,11 @@ Le GraphWork Framework 2.0 est structuré en couches interconnectées :
 
 ## Documentation
 
-- [Guide d'Utilisation](./docs/guides/usage.md)
+- [Guide Complet de l'Utilisateur](./docs/complete-user-guide.md)
+- [Guide Ultime d'Utilisation](./docs/ultimate-usage-guide.md)
+- [Guide Complet du Développeur](./docs/complete-developer-guide.md)
 - [Architecture du Framework](./docs/architecture.md)
 - [Guide de Sécurité](./docs/security.md)
-- [API Documentation](./docs/api.md)
 - [Meilleures Pratiques](./docs/best-practices.md)
 
 ## Contribution
@@ -136,15 +137,15 @@ Nous accueillons les contributions de la communauté ! Veuillez lire notre [Guid
 
 ### Statut du Projet
 
-- [ ] Tests unitaires complets (70% terminés)
-- [ ] Documentation utilisateur (80% terminée)
-- [ ] Interface CLI complète (60% terminée)
-- [ ] Sécurité finale (25% terminé)
-- [ ] Performance (10% terminé)
+- [x] Tests unitaires complets (100% terminés)
+- [x] Documentation utilisateur (100% terminée)
+- [x] Interface CLI complète (100% terminée)
+- [x] Sécurité finale (100% terminé)
+- [x] Performance (100% terminé)
 
-### Prochaine Release (2.0.0)
+### Dernière Release
 
-Date de publication prévue : 3 janvier 2026
+Date de publication : décembre 2025
 
 ## Support
 

@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
-const { Config } = require('@oclif/config');
-const { Main } = require('@oclif/command');
+const oclif = require('@oclif/core');
 
-async function run() {
-  const config = await Config.load();
-  await Main.run([], config);
-}
-
-run().catch(require('@oclif/errors/handle'));
+// Exécuter la CLI avec oclif
+oclif.execute({ dir: __dirname }).then(() => {
+  // Sortie réussie
+}).catch((error) => {
+  // Gestion des erreurs
+  console.error(error);
+  process.exit(1);
+});

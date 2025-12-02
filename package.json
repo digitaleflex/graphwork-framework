@@ -1,6 +1,6 @@
 {
-  "name": "@graphwork/monorepo",
-  "version": "2.0.0-rc.1",
+  "name": "graphwork-framework",
+  "version": "2.0.0",
   "description": "GraphWork Framework 2.0 - Monorepo",
   "private": true,
   "workspaces": [

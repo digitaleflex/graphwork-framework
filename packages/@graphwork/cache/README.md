@@ -1,183 +1,167 @@
-# @graphwork/cache
+# Cache
 
-Cache management system for GraphWork Framework 2.0
+Cache management for GraphWork Framework 2.0
 
 ## Overview
 
-The `@graphwork/cache` package provides a comprehensive caching solution for the GraphWork Framework. It includes implementations of LRU (Least Recently Used) and Memory caches with features like TTL (Time To Live), statistics tracking, and cache management.
-
-## Features
-
-- **LRU Cache**: Automatically evicts least recently used items when maxSize is reached
-- **Memory Cache**: Simple in-memory cache with size limits
-- **TTL Support**: Automatic expiration of cached items
-- **Statistics**: Hit/miss ratios, eviction counts, and other metrics
-- **Cache Manager**: Centralized management of multiple caches
-- **Async Fetch**: Automatic fetching and caching of data
-- **Preloading**: Bulk loading of cache data
-- **Export/Import**: Serialization and deserialization of cache data
+The Cache module provides efficient caching mechanisms for the GraphWork Framework. It includes implementations of LRU (Least Recently Used) cache and memory cache to optimize performance and reduce redundant computations.
 
 ## Installation
 
 ```bash
-npm install @graphwork/cache
+npm install graphwork-cache
 ```
+
+## Features
+
+- **LRU Cache**: Implements Least Recently Used eviction policy
+- **Memory Cache**: Simple in-memory caching solution
+- **TTL Support**: Time-to-live expiration for cached items
+- **Performance Optimized**: Efficient memory usage and fast access times
+- **TypeScript Support**: Full TypeScript definitions included
 
 ## Usage
 
-### Basic LRU Cache
+### LRU Cache
 
 ```typescript
-import { LRUCache } from '@graphwork/cache';
+import { LRUCache } from 'graphwork-cache';
 
-// Create a new LRU cache with a maximum size of 100 items
-const cache = new LRUCache<string>({ maxSize: 100 });
+// Create an LRU cache with a maximum size of 100 items
+const cache = new LRUCache<string>({
+  maxSize: 100,
+  ttl: 3600000 // 1 hour in milliseconds
+});
 
-// Set values
+// Set a value
 cache.set('key1', 'value1');
-cache.set('key2', 'value2', 5000); // TTL of 5 seconds
 
-// Get values
-const value1 = cache.get('key1');
-const value2 = cache.get('key2');
+// Get a value
+const value = cache.get('key1');
 
-// Check if key exists
-if (cache.has('key1')) {
-  console.log('Key exists');
-}
+// Check if a key exists
+const exists = cache.has('key1');
 
 // Delete a key
 cache.delete('key1');
 
-// Clear all items
+// Clear all entries
 cache.clear();
 ```
 
 ### Memory Cache
 
 ```typescript
-import { MemoryCache } from '@graphwork/cache';
+import { MemoryCache } from 'graphwork-cache';
 
-// Create a new memory cache with a maximum size of 50 items
-const cache = new MemoryCache<string>({ maxSize: 50 });
+// Create a memory cache
+const cache = new MemoryCache<string>({
+  ttl: 1800000 // 30 minutes in milliseconds
+});
 
-// Set values (throws error if maxSize is exceeded)
+// Set a value
 cache.set('key1', 'value1');
 
-// Get values
-const value1 = cache.get('key1');
+// Get a value
+const value = cache.get('key1');
 ```
 
 ### Cache Manager
 
 ```typescript
-import { CacheManager } from '@graphwork/cache';
+import { CacheManager } from 'graphwork-cache';
 
-// Create a cache manager with default configuration
-const cacheManager = new CacheManager({ maxSize: 1000, ttl: 30000 });
+// Create a cache manager
+const cacheManager = new CacheManager({
+  maxSize: 1000
+});
 
-// Create caches
+// Create different cache instances
 const userCache = cacheManager.createLRUCache<User>('users');
 const productCache = cacheManager.createMemoryCache<Product>('products');
 
-// Get or create cache
-const sessionCache = cacheManager.getOrCreateCache<Session>('sessions');
-
-// Preload data
-cacheManager.preloadCache('users', {
-  'user1': { id: 'user1', name: 'John Doe' },
-  'user2': { id: 'user2', name: 'Jane Smith' }
-});
-
-// Get statistics
-const stats = cacheManager.getAllStats();
-console.log(stats);
+// Use caches
+userCache.set('user1', { id: 'user1', name: 'John Doe' });
+const user = userCache.get('user1');
 ```
 
-### Async Fetch with Caching
-
-```typescript
-import { LRUCache } from '@graphwork/cache';
-
-// Create a cache with a fetch method
-const cache = new LRUCache<User>({
-  maxSize: 100,
-  ttl: 60000, // 1 minute
-  fetchMethod: async (userId: string) => {
-    // Fetch user from database or API
-    const response = await fetch(`/api/users/${userId}`);
-    return response.json();
-  }
-});
-
-// Fetch user (automatically cached)
-const user = await cache.fetch('user123');
-
-// Subsequent calls will return cached value
-const sameUser = await cache.fetch('user123');
-```
-
-## Configuration Options
-
-### CacheConfig
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| maxSize | number | 1000 | Maximum number of items in cache |
-| ttl | number | 0 | Time to live in milliseconds (0 = no expiration) |
-| maxAge | number | 0 | Maximum age in milliseconds |
-| updateAgeOnGet | boolean | false | Update item age on get |
-| dispose | function | noop | Called when item is removed |
-| disposeAfter | function | noop | Called after item is removed |
-| noDisposeOnSet | boolean | false | Don't call dispose when overwriting |
-| ttlAutopurge | boolean | false | Automatically remove expired items |
-| allowStale | boolean | false | Allow returning stale items |
-| noDeleteOnStaleGet | boolean | false | Don't delete stale items on get |
-| fetchMethod | function | undefined | Async function to fetch data |
-
-## API Reference
+## API
 
 ### LRUCache
 
-- `get(key: string): T | undefined`
-- `set(key: string, value: T, ttl?: number): void`
-- `has(key: string): boolean`
-- `delete(key: string): boolean`
-- `clear(): void`
-- `size(): number`
-- `stats(): CacheStats`
-- `keys(): string[]`
-- `values(): T[]`
-- `entries(): [string, T][]`
-- `fetch(key: string): Promise<T | undefined>`
+#### Constructor
+```typescript
+new LRUCache<T>(config: CacheConfig)
+```
+
+#### Methods
+- `set(key: string, value: T): void` - Sets a value in the cache
+- `get(key: string): T | undefined` - Gets a value from the cache
+- `has(key: string): boolean` - Checks if a key exists in the cache
+- `delete(key: string): boolean` - Deletes a key from the cache
+- `clear(): void` - Clears all entries from the cache
+- `size(): number` - Returns the number of entries in the cache
+- `maxSize(): number` - Returns the maximum size of the cache
 
 ### MemoryCache
 
-Same API as LRUCache but throws error when maxSize is exceeded.
+#### Constructor
+```typescript
+new MemoryCache<T>(config: CacheConfig)
+```
+
+#### Methods
+- `set(key: string, value: T): void` - Sets a value in the cache
+- `get(key: string): T | undefined` - Gets a value from the cache
+- `has(key: string): boolean` - Checks if a key exists in the cache
+- `delete(key: string): boolean` - Deletes a key from the cache
+- `clear(): void` - Clears all entries from the cache
+- `size(): number` - Returns the number of entries in the cache
 
 ### CacheManager
 
-- `createLRUCache<T>(name: string, config?: CacheConfig): LRUCache<T>`
-- `createMemoryCache<T>(name: string, config?: CacheConfig): MemoryCache<T>`
-- `getCache<T>(name: string): CacheInterface<T> | undefined`
-- `getOrCreateCache<T>(name: string, type?: 'lru' | 'memory', config?: CacheConfig): CacheInterface<T>`
-- `deleteCache(name: string): boolean`
-- `clearAll(): void`
-- `getAllStats(): Record<string, CacheStats>`
-- `getCacheNames(): string[]`
-- `getTotalSize(): number`
-- `preloadCache<T>(name: string, data: Record<string, T>, ttl?: number): void`
-- `exportCache<T>(name: string): Record<string, T>`
-- `importCache<T>(name: string, data: Record<string, T>, ttl?: number): void`
+#### Constructor
+```typescript
+new CacheManager(config: CacheManagerConfig)
+```
 
-## Performance Considerations
+#### Methods
+- `createLRUCache<T>(name: string, config?: CacheConfig): LRUCache<T>` - Creates a new LRU cache
+- `createMemoryCache<T>(name: string, config?: CacheConfig): MemoryCache<T>` - Creates a new memory cache
+- `getCache(name: string): Cache | undefined` - Gets a cache by name
+- `deleteCache(name: string): boolean` - Deletes a cache by name
+- `clearAll(): void` - Clears all caches
+- `getAllStats(): Record<string, CacheStats>` - Gets statistics for all caches
 
-- LRU cache is optimized for frequent access patterns
-- Memory cache is faster but has stricter size limits
-- Use appropriate TTL values to balance performance and data freshness
-- Monitor cache statistics to optimize configuration
-- Consider using fetchMethod for automatic data fetching and caching
+## Configuration
+
+### CacheConfig
+```typescript
+interface CacheConfig {
+  maxSize?: number;    // Maximum number of items (for LRU cache)
+  ttl?: number;        // Time to live in milliseconds
+}
+```
+
+### CacheManagerConfig
+```typescript
+interface CacheManagerConfig {
+  maxSize?: number;    // Default maximum size for caches
+}
+```
+
+## Performance
+
+The cache implementations are optimized for:
+- Fast O(1) access times
+- Efficient memory usage
+- Automatic cleanup of expired entries
+- Minimal garbage collection overhead
+
+## Contributing
+
+See our [Contributing Guide](https://github.com/graphmind/graphwork-framework/blob/main/CONTRIBUTING.md) for information on how to contribute to this package.
 
 ## License
 
-MIT © GraphMind Organization
+This package is licensed under the MIT License. See the [LICENSE](https://github.com/graphmind/graphwork-framework/blob/main/LICENSE) file for details.

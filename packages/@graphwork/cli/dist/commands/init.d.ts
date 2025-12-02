@@ -1,21 +1,16 @@
-import { Command, flags } from '@oclif/command';
+import { Command } from '@oclif/core';
 export default class Init extends Command {
     static description: string;
     static examples: string[];
-    static flagsConfig: {
-        template: flags.IOptionFlag<string | undefined>;
-        tech: flags.IOptionFlag<string | undefined>;
-        domain: flags.IOptionFlag<string | undefined>;
-        force: import("@oclif/parser/lib/flags").IBooleanFlag<boolean>;
+    static flags: {
+        template: import("@oclif/core/lib/interfaces").OptionFlag<string | undefined, import("@oclif/core/lib/interfaces").CustomOptions>;
+        tech: import("@oclif/core/lib/interfaces").OptionFlag<string | undefined, import("@oclif/core/lib/interfaces").CustomOptions>;
+        domain: import("@oclif/core/lib/interfaces").OptionFlag<string | undefined, import("@oclif/core/lib/interfaces").CustomOptions>;
+        force: import("@oclif/core/lib/interfaces").BooleanFlag<boolean>;
     };
     static args: {
-        name: string;
-        description: string;
-        required: boolean;
-    }[];
+        projectname: import("@oclif/core/lib/interfaces").Arg<string | undefined, Record<string, unknown>>;
+    };
     run(): Promise<void>;
-    private generateConfig;
-    private generateReadme;
-    private generateVisionDoc;
 }
 //# sourceMappingURL=init.d.ts.map
