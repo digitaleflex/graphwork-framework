@@ -1,6 +1,6 @@
 {
-  "name": "@graphwork/tools",
-  "version": "2.0.0-rc.1",
+  "name": "graphwork-tools",
+  "version": "2.0.0",
   "description": "Development tools for GraphWork Framework 2.0",
   "main": "dist/index.js",
   "scripts": {
@@ -12,12 +12,12 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@graphwork/core": "^2.0.0-rc.1",
-    "@graphwork/knowledge-base": "^2.0.0-rc.1",
     "typescript": "^4.8.0",
     "chalk": "^4.1.0",
     "fs-extra": "^10.0.0",
-    "@types/fs-extra": "^9.0.13"
+    "@types/fs-extra": "^9.0.13",
+    "graphwork-core": "^2.0.0-rc.1",
+    "graphwork-knowledge-base": "^2.0.0-rc.1"
   },
   "keywords": [
     "tools",

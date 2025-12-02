@@ -1,16 +1,18 @@
 // packages/@graphwork/cache/src/MemoryCache.ts
-import { CacheInterface, CacheConfig, CacheEntry, CacheStats } from './types';
+import { CacheInterface, CacheConfig, InternalCacheConfig, CacheEntry, CacheStats } from './types';
 
 export class MemoryCache<T = any> implements CacheInterface<T> {
   private cache: Map<string, CacheEntry<T>>;
-  private config: Required<CacheConfig>;
+  private config: InternalCacheConfig;
   private hitCount: number = 0;
   private missCount: number = 0;
 
   constructor(config: CacheConfig = {}) {
     this.cache = new Map<string, CacheEntry<T>>();
+
+    // Set default values for config
     this.config = {
-      maxSize: config.maxSize || Infinity,
+      maxSize: config.maxSize || 1000,
       ttl: config.ttl || 0,
       maxAge: config.maxAge || 0,
       updateAgeOnGet: config.updateAgeOnGet || false,
@@ -20,7 +22,7 @@ export class MemoryCache<T = any> implements CacheInterface<T> {
       ttlAutopurge: config.ttlAutopurge || false,
       allowStale: config.allowStale || false,
       noDeleteOnStaleGet: config.noDeleteOnStaleGet || false,
-      fetchMethod: config.fetchMethod
+      fetchMethod: config.fetchMethod || undefined
     };
   }
 

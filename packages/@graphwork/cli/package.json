@@ -1,6 +1,6 @@
 {
-  "name": "@graphwork/cli",
-  "version": "2.0.0-rc.1",
+  "name": "graphwork-cli",
+  "version": "2.0.0",
   "description": "Command Line Interface for GraphWork Framework 2.0",
   "main": "dist/index.js",
   "bin": {
@@ -15,8 +15,6 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@graphwork/core": "^2.0.0-rc.1",
-    "@graphwork/knowledge-base": "^2.0.0-rc.1",
     "@oclif/command": "^1.8.0",
     "@oclif/config": "^1.17.0",
     "@oclif/plugin-help": "^3.2.0",
@@ -25,7 +23,9 @@
     "ora": "^5.0.0",
     "yargs": "^17.0.0",
     "@types/inquirer": "^8.0.0",
-    "@types/yargs": "^17.0.0"
+    "@types/yargs": "^17.0.0",
+    "graphwork-core": "^2.0.0-rc.1",
+    "graphwork-knowledge-base": "^2.0.0-rc.1"
   },
   "keywords": [
     "cli",

@@ -1,6 +1,6 @@
 {
-  "name": "@graphwork/ai-integration",
-  "version": "2.0.0-rc.1",
+  "name": "graphwork-ai-integration",
+  "version": "2.0.0",
   "description": "AI integration layer for GraphWork Framework 2.0",
   "main": "dist/index.js",
   "scripts": {
@@ -12,12 +12,12 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@graphwork/knowledge-base": "^2.0.0-rc.1",
-    "@graphwork/templates": "^2.0.0-rc.1",
     "typescript": "^4.8.0",
     "axios": "^0.27.0",
     "openai": "^3.0.0",
-    "@types/axios": "^0.14.0"
+    "@types/axios": "^0.14.0",
+    "graphwork-knowledge-base": "^2.0.0-rc.1",
+    "graphwork-templates": "^2.0.0-rc.1"
   },
   "keywords": [
     "ai",

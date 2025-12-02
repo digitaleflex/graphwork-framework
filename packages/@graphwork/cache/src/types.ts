@@ -14,6 +14,11 @@ export interface CacheConfig {
   fetchMethod?: (key: string) => Promise<any>;
 }
 
+// Define a type for the internal config where we set default values
+export type InternalCacheConfig = Required<Omit<CacheConfig, 'fetchMethod'>> & {
+  fetchMethod?: (key: string) => Promise<any>;
+};
+
 export interface CacheEntry<T = any> {
   key: string;
   value: T;

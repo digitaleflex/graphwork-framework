@@ -1,6 +1,6 @@
 {
-  "name": "@graphwork/templates",
-  "version": "2.0.0-rc.1",
+  "name": "graphwork-templates",
+  "version": "2.0.0",
   "description": "Template engine for GraphWork Framework 2.0",
   "main": "dist/index.js",
   "scripts": {
@@ -12,11 +12,11 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@graphwork/knowledge-base": "^2.0.0-rc.1",
     "typescript": "^4.8.0",
     "handlebars": "^4.7.0",
     "lodash": "^4.17.0",
-    "@types/handlebars": "^4.1.0"
+    "@types/handlebars": "^4.1.0",
+    "graphwork-knowledge-base": "^2.0.0-rc.1"
   },
   "keywords": [
     "templates",

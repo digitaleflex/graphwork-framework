@@ -1,6 +1,6 @@
 {
-  "name": "@graphwork/core",
-  "version": "2.0.0-rc.1",
+  "name": "graphwork-core",
+  "version": "2.0.0",
   "description": "Core engine of GraphWork Framework 2.0",
   "main": "dist/index.js",
   "scripts": {
@@ -12,12 +12,12 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@graphwork/knowledge-base": "^2.0.0-rc.1",
-    "@graphwork/ai-integration": "^2.0.0-rc.1",
-    "@graphwork/templates": "^2.0.0-rc.1",
     "typescript": "^4.8.0",
     "lodash": "^4.17.0",
-    "@types/lodash": "^4.14.0"
+    "@types/lodash": "^4.14.0",
+    "graphwork-knowledge-base": "^2.0.0-rc.1",
+    "graphwork-ai-integration": "^2.0.0-rc.1",
+    "graphwork-templates": "^2.0.0-rc.1"
   },
   "keywords": [
     "core",
