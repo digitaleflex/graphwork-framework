@@ -10,16 +10,15 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-// Liste des workspaces à publier (mis à jour pour les nouveaux noms)
+// Liste des workspaces à publier (mis à jour pour les nouveaux noms et structure)
 const workspaces = [
-  'packages/graphwork-cache',
-  'packages/graphwork-cli',
-  'packages/graphwork-core',
-  'packages/graphwork-knowledge-base',
-  'packages/graphwork-templates',
-  'packages/graphwork-tools',
-  'packages/graphwork-ai-integration',
-  'packages/graphwork-ai-agents'
+  'packages/@graphwork/cache',
+  'packages/@graphwork/cli',
+  'packages/@graphwork/core',
+  'packages/@graphwork/knowledge-base',
+  'packages/@graphwork/templates',
+  'packages/@graphwork/tools',
+  'packages/@graphwork/ai-integration'
 ];
 
 // Vérifier si l'utilisateur est connecté à npm

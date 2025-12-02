@@ -4,8 +4,7 @@
   "description": "GraphWork Framework 2.0 - Monorepo",
   "private": true,
   "workspaces": [
-    "packages/@graphwork/*",
-    "ai-agents"
+    "packages/@graphwork/*"
   ],
   "scripts": {
     "setup-dev": "npm install && npm run build --workspaces",

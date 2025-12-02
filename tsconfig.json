@@ -7,7 +7,7 @@
     "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
-    "rootDir": "./packages",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -25,5 +25,20 @@
     { "path": "./packages/@graphwork/ai-integration" },
     { "path": "./packages/@graphwork/tools" }
   ],
-  "exclude": ["node_modules", "dist", "**/__tests__/*", "**/node_modules/*"]
+  "include": [
+    "packages/**/*",
+    "ai-agents/src/**/*",
+    "adapters/**/*",
+    "tests/**/*",
+    "registry/**/*",
+    "scripts/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/__tests__/*",
+    "**/node_modules/*",
+    "packages/**/dist/**/*",
+    "ai-agents/dist/**/*"
+  ]
 }
