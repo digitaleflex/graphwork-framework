@@ -16,6 +16,7 @@
     "publish:packages": "node scripts/publish.js",
     "publish:auto": "node scripts/publish-auto.js",
     "fix:packages": "node scripts/fix-package-names.js",
+    "add:license": "node scripts/add-license.js",
     "docs:build": "typedoc",
     "prepare": "husky install"
   },
