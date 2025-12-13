@@ -60,7 +60,7 @@ export class GraphWorkClient {
 
   updateConfig(apiKey: string, model: string, temperature: number, maxTokens: number) {
     this.config = { apiKey, model, temperature, maxTokens };
-    // @ts-expect-error - Type definition issue with axios headers
+    // Authorization header setup
     this.axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
   }
 
