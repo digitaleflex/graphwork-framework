@@ -2,6 +2,7 @@
   "name": "graphwork-framework",
   "version": "2.0.0",
   "description": "GraphWork Framework 2.0 - Monorepo",
+  "type": "module",
   "private": true,
   "workspaces": [
     "packages/@graphwork/*"

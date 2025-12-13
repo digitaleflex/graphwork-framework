@@ -6,9 +6,12 @@
  * Ce script publie tous les packages du monorepo sur npm
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Liste des workspaces à publier
 const workspaces = [
@@ -33,24 +36,24 @@ function execCommand(command, options = {}) {
 // Fonction pour valider la configuration du package
 function validatePackage(packagePath, packageJson) {
   const issues = [];
-  
+
   // Vérifier si la propriété "files" est définie
   if (!packageJson.files) {
     issues.push('Aucune liste de fichiers définie - les fichiers de test pourraient être inclus');
   }
-  
+
   // Vérifier la présence de README.md
   const readmePath = path.join(packagePath, 'README.md');
   if (!fs.existsSync(readmePath)) {
     issues.push('README.md manquant');
   }
-  
+
   // Vérifier la présence de LICENSE
   const licensePath = path.join(packagePath, 'LICENSE');
   if (!fs.existsSync(licensePath)) {
     issues.push('LICENSE manquante');
   }
-  
+
   return issues;
 }
 
@@ -115,29 +118,29 @@ const validationReport = [];
 for (const workspace of workspaces) {
   const packagePath = path.join(__dirname, '..', workspace);
   const packageJsonPath = path.join(packagePath, 'package.json');
-  
+
   // Vérifier si le package.json existe
   if (!fs.existsSync(packageJsonPath)) {
     console.warn(`⚠️  Package.json non trouvé dans ${workspace}, ignoré`);
     validationReport.push({ workspace, status: 'ignored', reason: 'package.json missing' });
     continue;
   }
-  
+
   // Lire le package.json
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-  
+
   // Valider la configuration du package
   const issues = validatePackage(packagePath, packageJson);
   if (issues.length > 0) {
     console.warn(`⚠️  Problèmes détectés dans ${packageJson.name}:`);
     issues.forEach(issue => console.warn(`   - ${issue}`));
   }
-  
-  validationReport.push({ 
-    workspace, 
-    packageName: packageJson.name, 
-    version: packageJson.version, 
-    issues 
+
+  validationReport.push({
+    workspace,
+    packageName: packageJson.name,
+    version: packageJson.version,
+    issues
   });
 }
 
@@ -157,19 +160,19 @@ validationReport
 console.log('\n❓ Souhaitez-vous continuer avec la publication ? (Ctrl+C pour annuler)');
 setTimeout(() => {
   console.log('⏳ Publication automatique dans 10 secondes...');
-  
+
   // Publier chaque package
   console.log('\n🚀 Début de la publication des packages...');
   let publishedCount = 0;
   let errorCount = 0;
-  
+
   for (const report of validationReport) {
     // Ignorer les packages sans nom
     if (!report.packageName) continue;
-    
+
     const { workspace, packageName, version } = report;
     console.log(`\n📦 Traitement de ${packageName}@${version}`);
-    
+
     try {
       // Vérifier si c'est une version préliminaire
       let tagOption = '';
@@ -179,10 +182,10 @@ setTimeout(() => {
         tagOption = ` --tag ${tag}`;
         console.log(`   🏷️  Version préliminaire détectée, publication avec le tag: ${tag}`);
       }
-      
+
       // Publier avec accès public pour éviter les frais
       execCommand(`npm publish --workspace=${workspace} --access public${tagOption}`);
-      
+
       console.log(`✅ Publié ${packageName}@${version}`);
       publishedCount++;
     } catch (error) {
@@ -203,13 +206,13 @@ setTimeout(() => {
       }
     }
   }
-  
+
   // Résumé de la publication
   console.log('\n📊 Résumé de la publication:');
   console.log(`   ✅ Packages publiés: ${publishedCount}`);
   console.log(`   ❌ Erreurs: ${errorCount}`);
   console.log(`   📦 Total traité: ${publishedCount + errorCount}`);
-  
+
   if (errorCount === 0) {
     console.log('\n🎉 Publication terminée avec succès!');
     console.log('🔗 Vérifiez vos packages sur https://www.npmjs.com/settings/~packages');

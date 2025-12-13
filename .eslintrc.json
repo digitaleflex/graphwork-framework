@@ -29,6 +29,8 @@
         "node_modules/",
         "dist/",
         "build/",
-        "coverage/"
+        "coverage/",
+        "packages/**/*.js",
+        "work/templates/**/*.js"
     ]
 }

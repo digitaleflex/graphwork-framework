@@ -5,8 +5,11 @@
  * Remplace le scope @graphwork par le scope utilisateur
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Liste des workspaces
 const workspaces = [
@@ -32,20 +35,20 @@ console.log(`🔄 Mise à jour des packages pour utiliser le scope @${username}.
 
 for (const workspace of workspaces) {
   const packageJsonPath = path.join(__dirname, '..', workspace, 'package.json');
-  
+
   if (!fs.existsSync(packageJsonPath)) {
     console.warn(`⚠️  package.json non trouvé dans ${workspace}`);
     continue;
   }
-  
+
   // Lire le package.json
   const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
   const oldName = packageJson.name;
-  
+
   // Remplacer @graphwork par le scope utilisateur
   const newName = oldName.replace('@graphwork/', `@${username}/graphwork-`);
   packageJson.name = newName;
-  
+
   // Mettre à jour les dépendances si nécessaire
   if (packageJson.dependencies) {
     for (const [depName, depVersion] of Object.entries(packageJson.dependencies)) {
@@ -56,7 +59,7 @@ for (const workspace of workspaces) {
       }
     }
   }
-  
+
   // Écrire le fichier mis à jour
   fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
   console.log(`✅ ${oldName} → ${newName}`);

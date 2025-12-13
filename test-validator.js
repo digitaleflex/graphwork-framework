@@ -5,7 +5,7 @@ const code = `        const apiKey = 'sk-abcdefghijklmnopqrstuvwxyz1234567890123
         }`;
 
 // Test our actual security validator
-const { SecurityValidator } = require('./packages/@graphwork/ai-integration/dist/security-validator.js');
+import { SecurityValidator } from './packages/@graphwork/ai-integration/dist/security-validator.js';
 
 const result = SecurityValidator.validateGeneratedCode(code);
 console.log('Result:', result);

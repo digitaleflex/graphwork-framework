@@ -4,8 +4,11 @@
  * Script pour ajouter automatiquement les fichiers LICENSE aux packages
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Liste des workspaces
 const workspaces = [
@@ -56,19 +59,19 @@ if (!fs.existsSync(rootLicensePath)) {
 for (const workspace of workspaces) {
   const packagePath = path.join(__dirname, '..', workspace);
   const licensePath = path.join(packagePath, 'LICENSE');
-  
+
   if (!fs.existsSync(licensePath)) {
     fs.writeFileSync(licensePath, licenseContent);
     console.log(`✅ LICENSE ajouté à ${workspace}`);
   } else {
     console.log(`ℹ️  LICENSE déjà présent dans ${workspace}`);
   }
-  
+
   // Mettre à jour le package.json pour inclure la licence
   const packageJsonPath = path.join(packagePath, 'package.json');
   if (fs.existsSync(packageJsonPath)) {
     const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
-    
+
     // Ajouter la licence si elle n'existe pas
     if (!packageJson.license) {
       packageJson.license = 'MIT';
