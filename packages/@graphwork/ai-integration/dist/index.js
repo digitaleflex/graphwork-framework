@@ -44,11 +44,12 @@ function generatedFunction() {
         // - Compliance with project standards
         // Use our security validator to check the response
         const validationResult = security_validator_1.SecurityValidator.validateGeneratedCode(response);
-        if (!validationResult.isValid) {
-            console.warn(`Security validation issues found in generated code: ${validationResult.issues.join(', ')}`);
-            // Depending on severity, we might want to reject the response
-            if (validationResult.severity === 'critical' || validationResult.severity === 'high') {
-                throw new Error(`Generated code failed security validation: ${validationResult.issues.join(', ')}`);
+        if (!validationResult?.isValid) {
+            const issues = Array.isArray(validationResult?.issues) ? validationResult.issues : [];
+            console.warn(`Security validation issues found in generated code: ${issues.join(', ')}`);
+            const severity = validationResult?.severity ?? 'low';
+            if (severity === 'critical' || severity === 'high') {
+                throw new Error(`Generated code failed security validation: ${issues.join(', ')}`);
             }
         }
         return true;

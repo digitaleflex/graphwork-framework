@@ -24,19 +24,19 @@ export class AIIntegration {
     if (!promptValidation.isValid) {
       throw new Error(`Security validation failed for prompt: ${promptValidation.issues.join(', ')}`);
     }
-    
+
     // Validate the context for security issues
     const contextValidation = SecurityValidator.validateInput(JSON.stringify(context));
     if (!contextValidation.isValid) {
       throw new Error(`Security validation failed for context: ${contextValidation.issues.join(', ')}`);
     }
-    
+
     console.log(`Generating code with prompt: ${prompt}`);
     console.log(`Context: ${JSON.stringify(context)}`);
-    
+
     // Simulate API call to AI provider
     const response = await this.callAIProvider(prompt, context);
-    
+
     return response;
   }
 
@@ -46,7 +46,7 @@ export class AIIntegration {
     // - Different provider APIs (OpenAI, Anthropic, etc.)
     // - Rate limiting and caching
     // - Security validation
-    
+
     // For demo purposes, return a mock response
     return `// Generated code based on prompt: ${prompt}
 function generatedFunction() {
@@ -61,18 +61,20 @@ function generatedFunction() {
     // - Security vulnerabilities
     // - Quality standards
     // - Compliance with project standards
-    
+
     // Use our security validator to check the response
     const validationResult = SecurityValidator.validateGeneratedCode(response);
-    
-    if (!validationResult.isValid) {
-      console.warn(`Security validation issues found in generated code: ${validationResult.issues.join(', ')}`);
-      // Depending on severity, we might want to reject the response
-      if (validationResult.severity === 'critical' || validationResult.severity === 'high') {
-        throw new Error(`Generated code failed security validation: ${validationResult.issues.join(', ')}`);
+
+    if (!validationResult?.isValid) {
+      const issues: string[] = Array.isArray(validationResult?.issues) ? validationResult!.issues : [];
+      console.warn(`Security validation issues found in generated code: ${issues.join(', ')}`);
+
+      const severity = validationResult?.severity ?? 'low';
+      if (severity === 'critical' || severity === 'high') {
+        throw new Error(`Generated code failed security validation: ${issues.join(', ')}`);
       }
     }
-    
+
     return true;
   }
 }

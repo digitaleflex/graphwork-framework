@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DevelopmentTools = void 0;
-// packages/@graphwork/tools/src/index.ts
+const perf_hooks_1 = require("perf_hooks");
 class DevelopmentTools {
     static logInfo(message) {
         console.log(`[INFO] ${message}`);
@@ -12,10 +12,11 @@ class DevelopmentTools {
     static logError(message) {
         console.error(`[ERROR] ${message}`);
     }
+    // Accept both sync and async functions, and use high-resolution timer to avoid flaky assertions
     static async measurePerformance(fn) {
-        const start = Date.now();
-        const result = await fn();
-        const duration = Date.now() - start;
+        const start = perf_hooks_1.performance.now();
+        const result = await Promise.resolve(fn());
+        const duration = Math.max(0, Math.round(perf_hooks_1.performance.now() - start));
         return { result, duration };
     }
 }

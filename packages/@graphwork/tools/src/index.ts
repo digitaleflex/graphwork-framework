@@ -1,4 +1,5 @@
-// packages/@graphwork/tools/src/index.ts
+import { performance } from 'perf_hooks';
+
 export class DevelopmentTools {
   static logInfo(message: string): void {
     console.log(`[INFO] ${message}`);
@@ -12,10 +13,11 @@ export class DevelopmentTools {
     console.error(`[ERROR] ${message}`);
   }
 
-  static async measurePerformance<T>(fn: () => Promise<T>): Promise<{ result: T, duration: number }> {
-    const start = Date.now();
-    const result = await fn();
-    const duration = Date.now() - start;
+  // Accept both sync and async functions, and use high-resolution timer to avoid flaky assertions
+  static async measurePerformance<T>(fn: () => T | Promise<T>): Promise<{ result: T; duration: number }> {
+    const start = performance.now();
+    const result = await Promise.resolve(fn());
+    const duration = Math.max(0, Math.round(performance.now() - start));
     return { result, duration };
   }
 }
