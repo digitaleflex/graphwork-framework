@@ -3,7 +3,7 @@ import { Command, Flags } from '@oclif/core';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as chalk from 'chalk';
-import ora = require('ora');
+import ora from 'ora';
 
 export default class Dev extends Command {
   static description = 'Start development mode with AI assistance';
@@ -30,18 +30,18 @@ export default class Dev extends Command {
   async run(): Promise<void> {
     const { flags } = await this.parse(Dev);
     const spinner = ora('Starting development mode...').start();
-    
+
     try {
       // Simuler le démarrage du mode développement
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
       spinner.succeed(chalk.green('Development mode started successfully!'));
       this.log(chalk.blue(`Development server running on port ${flags.port}`));
-      
+
       if (flags.watch) {
         this.log(chalk.yellow('Watching for file changes...'));
       }
-      
+
       this.log(chalk.gray('\nPress Ctrl+C to stop the development server'));
     } catch (error) {
       spinner.fail(chalk.red('Failed to start development mode'));

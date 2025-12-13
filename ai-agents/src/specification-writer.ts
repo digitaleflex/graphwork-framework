@@ -1,9 +1,7 @@
 // ai-agents/src/specification-writer.ts
 import { AIAgent, AgentConfig } from './ai-agent';
 
-export interface SpecificationWriterConfig extends AgentConfig {
-  // Additional configuration specific to specification writer
-}
+export type SpecificationWriterConfig = AgentConfig;
 
 export class SpecificationWriter extends AIAgent {
   constructor(config: SpecificationWriterConfig) {
@@ -40,13 +38,13 @@ Format the specification in a clear, professional manner with appropriate headin
 
     try {
       const result = await this.aiIntegration.generateCode(specPrompt, context);
-      
+
       // Validate the generated specification
       const isValid = await this.validateOutput(result);
       if (!isValid) {
         throw new Error('Generated specification failed validation');
       }
-      
+
       return result;
     } catch (error) {
       console.error('Failed to generate specification:', error);

@@ -1,9 +1,7 @@
 // ai-agents/src/code-generator.ts
 import { AIAgent, AgentConfig } from './ai-agent';
 
-export interface CodeGeneratorConfig extends AgentConfig {
-  // Additional configuration specific to code generator
-}
+export type CodeGeneratorConfig = AgentConfig;
 
 export class CodeGenerator extends AIAgent {
   constructor(config: CodeGeneratorConfig) {
@@ -38,13 +36,13 @@ Include appropriate error handling, validation, and security measures.
 
     try {
       const result = await this.aiIntegration.generateCode(codePrompt, context);
-      
+
       // Validate the generated code
       const isValid = await this.validateOutput(result);
       if (!isValid) {
         throw new Error('Generated code failed validation');
       }
-      
+
       return result;
     } catch (error) {
       console.error('Failed to generate code:', error);

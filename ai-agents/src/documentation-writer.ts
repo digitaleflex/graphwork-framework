@@ -1,9 +1,7 @@
 // ai-agents/src/documentation-writer.ts
 import { AIAgent, AgentConfig } from './ai-agent';
 
-export interface DocumentationWriterConfig extends AgentConfig {
-  // Additional configuration specific to documentation writer
-}
+export type DocumentationWriterConfig = AgentConfig;
 
 export class DocumentationWriter extends AIAgent {
   constructor(config: DocumentationWriterConfig) {
@@ -42,13 +40,13 @@ Format the documentation in a clear, professional manner with appropriate headin
 
     try {
       const result = await this.aiIntegration.generateCode(docPrompt, context);
-      
+
       // Validate the generated documentation
       const isValid = await this.validateOutput(result);
       if (!isValid) {
         throw new Error('Generated documentation failed validation');
       }
-      
+
       return result;
     } catch (error) {
       console.error('Failed to generate documentation:', error);

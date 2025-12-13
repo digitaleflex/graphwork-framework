@@ -3,7 +3,7 @@ const code = `        const apiKey = 'sk-abcdefghijklmnopqrstuvwxyz1234567890123
           console.log(apiKey);
         }`;
 
-const pattern = /(api[key|secret]?\s*[=:]\s*['"][a-zA-Z0-9_\-]{30,}['"])/i;
+const pattern = /(api[key|secret]?\s*[=:]\s*['"][a-zA-Z0-9_-]{30,}['"])/i;
 console.log('Code:', JSON.stringify(code));
 console.log('Pattern:', pattern);
 console.log('Match:', pattern.test(code));

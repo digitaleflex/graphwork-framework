@@ -1,9 +1,7 @@
 // ai-agents/src/quality-reviewer.ts
 import { AIAgent, AgentConfig } from './ai-agent';
 
-export interface QualityReviewerConfig extends AgentConfig {
-  // Additional configuration specific to quality reviewer
-}
+export type QualityReviewerConfig = AgentConfig;
 
 export class QualityReviewer extends AIAgent {
   constructor(config: QualityReviewerConfig) {
@@ -57,13 +55,13 @@ Format your response as a structured review report with clear headings and actio
 
     try {
       const result = await this.aiIntegration.generateCode(reviewPrompt, context);
-      
+
       // Validate the generated review
       const isValid = await this.validateOutput(result);
       if (!isValid) {
         throw new Error('Generated review failed validation');
       }
-      
+
       return result;
     } catch (error) {
       console.error('Failed to generate review:', error);

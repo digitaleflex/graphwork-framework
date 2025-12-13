@@ -1,9 +1,7 @@
 // ai-agents/src/security-auditor.ts
 import { AIAgent, AgentConfig } from './ai-agent';
 
-export interface SecurityAuditorConfig extends AgentConfig {
-  // Additional configuration specific to security auditor
-}
+export type SecurityAuditorConfig = AgentConfig;
 
 export class SecurityAuditor extends AIAgent {
   constructor(config: SecurityAuditorConfig) {
@@ -63,13 +61,13 @@ Format your response as a structured security audit report with clear risk ratin
 
     try {
       const result = await this.aiIntegration.generateCode(auditPrompt, context);
-      
+
       // Validate the generated audit
       const isValid = await this.validateOutput(result);
       if (!isValid) {
         throw new Error('Generated audit failed validation');
       }
-      
+
       return result;
     } catch (error) {
       console.error('Failed to generate security audit:', error);

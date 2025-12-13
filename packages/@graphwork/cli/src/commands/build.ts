@@ -3,7 +3,7 @@ import { Command, Flags } from '@oclif/core';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as chalk from 'chalk';
-import ora = require('ora');
+import ora from 'ora';
 
 export default class Build extends Command {
   static description = 'Build the project for production';
@@ -30,23 +30,23 @@ export default class Build extends Command {
   async run(): Promise<void> {
     const { flags } = await this.parse(Build);
     const spinner = ora('Building project...').start();
-    
+
     try {
       // Simuler le processus de build
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
       // Créer le répertoire de sortie s'il n'existe pas
       fs.ensureDirSync(flags.output);
-      
+
       // Simuler la génération de fichiers de build
       const buildFiles = ['index.js', 'bundle.js', 'styles.css'];
       buildFiles.forEach(file => {
         fs.writeFileSync(path.join(flags.output, file), `// Built file: ${file}\n`);
       });
-      
+
       spinner.succeed(chalk.green('Project built successfully!'));
       this.log(chalk.blue(`Build output saved to: ${flags.output}`));
-      
+
       if (flags.minify) {
         this.log(chalk.yellow('Output has been minified'));
       }

@@ -4,7 +4,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as inquirer from 'inquirer';
 import * as chalk from 'chalk';
-import ora = require('ora');
+import ora from 'ora';
 
 export default class Generate extends Command {
   static description = 'Generate code templates with AI assistance';
@@ -39,10 +39,10 @@ export default class Generate extends Command {
 
   async run(): Promise<void> {
     const { args, flags } = await this.parse(Generate);
-    
+
     let templateType = args.type || flags.type || 'component';
     let templateName = args.name || 'GeneratedTemplate';
-    
+
     // Si le type n'est pas fourni, demander à l'utilisateur
     if (!args.type && !flags.type) {
       const response = await inquirer.prompt([{
@@ -53,7 +53,7 @@ export default class Generate extends Command {
       }]);
       templateType = response.templateType;
     }
-    
+
     // Si le nom n'est pas fourni, demander à l'utilisateur
     if (!args.name) {
       const response = await inquirer.prompt([{
@@ -64,30 +64,30 @@ export default class Generate extends Command {
       }]);
       templateName = response.templateName;
     }
-    
+
     const spinner = ora(`Generating ${templateType} ${templateName}...`).start();
-    
+
     try {
       // Créer le répertoire approprié selon le type
       const targetDir = path.join(process.cwd(), `${templateType}s`);
       fs.ensureDirSync(targetDir);
-      
+
       // Générer le contenu du template (simulé)
       const templateContent = this.generateTemplateContent(templateType, templateName);
-      
+
       // Écrire le fichier
       const fileName = `${templateName}.${this.getFileExtension(templateType)}`;
       const filePath = path.join(targetDir, fileName);
-      
+
       // Vérifier si le fichier existe déjà
       if (fs.existsSync(filePath) && !flags.force) {
         spinner.fail(chalk.red(`File ${fileName} already exists!`));
         this.log(chalk.yellow('Use --force to overwrite the existing file.'));
         return;
       }
-      
+
       fs.writeFileSync(filePath, templateContent);
-      
+
       spinner.succeed(chalk.green(`${templateType} ${templateName} generated successfully!`));
       this.log(chalk.blue(`Created: ${filePath}`));
     } catch (error) {
@@ -95,7 +95,7 @@ export default class Generate extends Command {
       this.error(error as Error);
     }
   }
-  
+
   private generateTemplateContent(type: string, name: string): string {
     // Générer un contenu de template basique selon le type
     switch (type) {
@@ -140,7 +140,7 @@ export function ${name}Middleware(req: any, res: any, next: any) {
         return `// ${name} ${type}\n\n// Generated template content\n`;
     }
   }
-  
+
   private getFileExtension(type: string): string {
     // Retourner l'extension de fichier appropriée selon le type
     switch (type) {
